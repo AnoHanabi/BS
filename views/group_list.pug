@@ -1,0 +1,10 @@
+extends layout
+
+block content
+
+    each group in group_list
+        p   groupname:#{group.groupname}
+        a(href="/group/"+group._id+"/channel/"+group.channel[0]._id) join
+        hr
+    else
+        li nothing

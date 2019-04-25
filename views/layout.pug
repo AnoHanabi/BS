@@ -12,7 +12,7 @@ html
   body
     div(class='container-fluid')
       div(class='row')
-        div(class='col-sm-2')
+        div(class='col-md-2')
           block sidebar
             ul(class='sidebar-nav')
               li 
@@ -21,6 +21,13 @@ html
                 a(href='/register') Register
               li
                 a(href="/users/msg") My msg
+              li
+                a(href="/group/create") Create group
+              li
+                a(href="/group") All group
                 
-        div(class='col-sm-10')
+        div(class='col-md-8')
           block content
+
+        div(Class="col-md-2")
+          block member
