@@ -1,0 +1,9 @@
+extends layout
+
+block content
+    if(user)
+        p username:#{user.username}
+        p password:#{user.password}
+        hr
+        a(href="/users/logout") logout
+    
