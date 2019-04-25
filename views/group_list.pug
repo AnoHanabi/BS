@@ -5,6 +5,8 @@ block content
     each group in group_list
         p   groupname:#{group.groupname}
         a(href="/group/"+group._id+"/channel/"+group.channel[0]._id) join
+        |&nbsp;/&nbsp;
+        a(href="/group/"+group._id+"/add/") add
         hr
     else
         li nothing

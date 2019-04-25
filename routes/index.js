@@ -22,6 +22,12 @@ router.post("/group/create",group_controller.group_create_post);
 
 router.get("/group",group_controller.group_list);
 
+router.get("/group/:gid/add",group_controller.group_add);
+
+router.get("/group/:gid/channel/create",group_controller.channel_create_get);
+
+router.post("/group/:gid/channel/create",group_controller.channel_create_post);
+
 router.get("/group/:gid/channel/:cid",group_controller.channel_detail);
 
 module.exports = router;

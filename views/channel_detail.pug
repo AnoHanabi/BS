@@ -1,6 +1,18 @@
 extends layout
 
-block content
-    p #{group.groupname}
-    p #{channel.channelname}
+block other
+    p Announce:
     p #{channel.announce}
+    hr
+    p User:
+    each user in channel.user
+        p #{user.username}
+
+block content
+    p group:#{group.groupname}
+    p channel:
+        each channel,index in group.channel
+            a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
+            if index<group.channel.length
+                |&nbsp;/&nbsp;
+        a(href="/group/"+group._id+"/channel/create") Create channel  
