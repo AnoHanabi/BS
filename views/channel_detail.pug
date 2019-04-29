@@ -1,18 +1,58 @@
-extends layout
+doctype html
+html
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(http-equiv="X-UA-Compatible", content="ie=edge")
+        link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+        script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js')
+        script(src="https://code.jquery.com/jquery-3.4.0.js")
+        script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        title=title
+    body
+        div(class='container-fluid')
+            div(class='row')
+                div(class='col-md-2')
+                    block sidebar
+                        ul(class='sidebar-nav')
+                            li 
+                                a(href='/login') Login
+                            li 
+                                a(href='/register') Register
+                            li
+                                a(href="/users/msg") My msg
+                            li
+                                a(href="/group/create") Create group
+                            li
+                                a(href="/group") All group
+                    
+                div(class='col-md-8')
+                    p group:#{group.groupname}
+                    p channel:
+                        each channel,index in group.channel
+                            a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
+                            if index<group.channel.length
+                                |&nbsp;/&nbsp;
+                        a(href="/group/"+group._id+"/channel/create") Create channel
+                    div#msgDiv
+                        ul#msg
+                            each msg in channel.msg
+                                li #{msg.user.username} (#{msg.time}) : #{msg.content}
+                    //- form#f1.form-inline(action="")
+                    //-     input#m.form-control(type='text' autocomplete="off" required='true')
+                    //-     button.btn.btn-primary(type="button") send
+                    div#d1
+                        input#m(type='text' autocomplete="off" required='true')
+                        button#bt.btn.btn-primary(type="button") send
 
-block other
-    p Announce:
-    p #{channel.announce}
-    hr
-    p User:
-    each user in channel.user
-        p #{user.username}
+                div(Class="col-md-2")
+                    p Announce:
+                    p #{channel.announce}
+                    hr
+                    p User:
+                    each user in channel.user
+                        p #{user.username}
 
-block content
-    p group:#{group.groupname}
-    p channel:
-        each channel,index in group.channel
-            a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
-            if index<group.channel.length
-                |&nbsp;/&nbsp;
-        a(href="/group/"+group._id+"/channel/create") Create channel  
+    script(src="/javascripts/socket.js")

@@ -16,3 +16,36 @@ a {
   padding: 0;
   list-style: none;
 }
+
+div#msgDiv {
+  height: 500px;
+  overflow: auto;
+}
+
+div#d1 {
+  position: fixed;
+  bottom: 10px;
+  width: 60%;
+}
+
+div#d1 input {
+  width: 90%;
+}
+
+div#d1 button {
+  width: 10%;
+}
+
+ul#msg {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul#msg li {
+  padding: 5px 10px;
+}
+
+ul#msg li:nth-child(odd) {
+  background: #eee;
+}

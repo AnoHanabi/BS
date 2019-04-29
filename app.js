@@ -16,6 +16,26 @@ mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB 连接错误：'));
 
+
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var SocketHandler = require('./controllers/socketController');
+
+io.on('connection', async (socket) => {
+  console.log('a user connected');
+  socketHandler = new SocketHandler();
+  socket.on("msg", (obj) => {
+    socketHandler.storeMsg(obj);
+    io.emit("msg", obj);
+  });
+
+});
+
+http.listen(3001, function () {
+  console.log('listening on *:3001');
+});
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -30,12 +50,12 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

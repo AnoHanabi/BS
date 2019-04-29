@@ -4,7 +4,8 @@ var Schema = mongoose.Schema;
 
 var MsgSchema = new Schema({
     content: { type: String, required: true },
-    time: { type: Date, default: Date.now }
+    time: { type: Date, default: Date.now },
+    user: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 
 module.exports = mongoose.model('Msg', MsgSchema);
