@@ -21,16 +21,80 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var SocketHandler = require('./controllers/socketController');
 
+var roomInfo = {};
 io.on('connection', async (socket) => {
   console.log('a user connected');
   socketHandler = new SocketHandler();
-  socket.on("msg", (obj) => {
-    console.log("socket.on\n");
-    socketHandler.storeMsg(obj);
-    console.log("storeMsg\n");
-    io.emit("msg", obj);
-    console.log("io.emit\n");
+
+  var url = socket.request.headers.referer;
+  var channel = url.split('/');
+  var roomID = channel[channel.length - 1];
+  var user = "";
+  var private = channel[channel.length - 2];
+
+  socket.on('join', function (userID) {
+    user = userID;
+    if (!roomInfo[roomID]) {
+      roomInfo[roomID] = [];
+    }
+    var index = roomInfo[roomID].indexOf(user);
+    if (index == -1) {
+      roomInfo[roomID].push(user);
+    }
+    socket.join(roomID);
+    console.log(user + ' join ' + roomID);
+    console.log(roomInfo[roomID]);
   });
+
+  // socket.on('leave', function (userID) {
+  //   socket.emit('disconnect', userID);
+  // });
+
+  socket.on('disconnect', function () {
+    // user = userID;
+    var index = roomInfo[roomID].indexOf(user);
+    if (index != -1) {
+      roomInfo[roomID].splice(index, 1);
+    }
+    socket.leave(roomID);
+    console.log(user + ' quit ' + roomID);
+    console.log(roomInfo[roomID]);
+  });
+
+  // socket.on("msg", (obj) => {
+  //   console.log("socket.on\n");
+  //   socketHandler.storeMsg(obj);
+  //   console.log("storeMsg\n");
+  //   io.emit("msg", obj);
+  //   console.log("io.emit\n");
+  // });
+  if (private == "users") {
+    socket.on('msg', (obj) => {
+      if (roomInfo[user].indexOf(roomID) == -1) {
+        return false;
+      }
+      console.log("socket.on");
+      socketHandler.storeMsg(obj);
+      console.log("storeMsg");
+      io.to(user).emit("msg", obj);
+      io.to(roomID).emit("msg", obj);
+      console.log("io.emit");
+    });
+
+  }
+  else {
+    socket.on('msg', (obj) => {
+      if (roomInfo[roomID].indexOf(user) == -1) {
+        return false;
+      }
+
+      console.log("socket.on");
+      socketHandler.storeMsg(obj);
+      console.log("storeMsg");
+      io.to(roomID).emit("msg", obj);
+      console.log("io.emit");
+    });
+  }
 
 });
 

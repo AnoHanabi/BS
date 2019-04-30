@@ -22,6 +22,11 @@ function getCookie(uid) {
     return c.substring(name.length, c.length);
 }
 
+socket.on('connect', function () {
+    var uid = getCookie("uid");
+    socket.emit('join', uid);
+});
+
 function Send() {
     var msg = document.querySelector("#m").value;
     var uid = getCookie("uid");

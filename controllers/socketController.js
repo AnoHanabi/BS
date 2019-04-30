@@ -10,13 +10,15 @@ class SocketHandler {
             var newMsg = new Msg({
                 content: data.content,
                 user: data.uid,
-                to: data.to
+                to: data.to,
+                type: type
             });
         } else {
 
             var newMsg = new Msg({
                 content: data.content,
-                user: data.uid
+                user: data.uid,
+                type: data.type
             });
 
         }
