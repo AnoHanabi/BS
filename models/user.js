@@ -8,4 +8,10 @@ var UserSchema = new Schema({
     admin: [{ type: Schema.Types.ObjectId, ref: 'Channel' }]
 });
 
+UserSchema
+    .virtual('idStr')
+    .get(function () {
+        return this._id.toString();
+    });
+
 module.exports = mongoose.model('User', UserSchema);

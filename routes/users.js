@@ -11,4 +11,6 @@ router.get("/msg", user_controller.user_msg);
 
 router.get("/logout",user_controller.user_logout);
 
+router.get("/:uid",user_controller.user_chat);
+
 module.exports = router;

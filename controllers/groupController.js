@@ -100,7 +100,7 @@ exports.channel_detail = function (req, res, next) {
         }
     }, function (err, results) {
         if (err) { return next(err); }
-        res.render('channel_detail', { title: 'Channel Detail', msg: results.msg, group: results.group, channel: results.channel });
+        res.render('channel_detail', { title: 'Channel Detail', my_id: req.cookies.uid, msg: results.msg, group: results.group, channel: results.channel });
     });
 };
 

@@ -28,34 +28,19 @@ html
                                 a(href="/group") All group
                     
                 div(class='col-md-8')
-                    p group:#{group.groupname}
-                    p channel:
-                        each channel,index in group.channel
-                            a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
-                            if index<group.channel.length
-                                |&nbsp;/&nbsp;
-                        a(href="/group/"+group._id+"/channel/create") Create channel
                     div#msgDiv
                         ul#msg
-                            each msg in channel.msg
-                                li #{msg.user.username} (#{msg.time.getMonth()+1}-#{msg.time.getDate()} #{msg.time.getHours()}:#{msg.time.getMinutes()}) : #{msg.content}
-                    //- form#f1.form-inline(action="")
-                    //-     input#m.form-control(type='text' autocomplete="off" required='true')
-                    //-     button.btn.btn-primary(type="button") send
+                            each one in msg
+                                if one.user._id == my_id && one.to == user._id
+                                    li #{one.user.username} (#{one.time.getMonth()+1}-#{one.time.getDate()} #{one.time.getHours()}:#{one.time.getMinutes()}) : #{one.content}
+                                else if one.user.idStr == user.idStr && one.to == my_id
+                                    li #{one.user.username} (#{one.time.getMonth()+1}-#{one.time.getDate()} #{one.time.getHours()}:#{one.time.getMinutes()}) : #{one.content}
                     div#d1
                         input#m(type='text' autocomplete="off" required='true')
                         button#bt.btn.btn-primary(type="button") send
 
                 div(Class="col-md-2")
-                    p Announce:
-                    p #{channel.announce}
-                    hr
-                    p User:
-                    each user in channel.user
-                        p
-                            if user._id != my_id
-                                a(href="/users/"+user._id) #{user.username}
-                            else
-                                span #{user.username}
+                    p Chatting with:
+                    p #{user.username}
 
-    script(src="/javascripts/socket.js")
+    script(src="/javascripts/socket_private.js")

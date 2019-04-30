@@ -25,8 +25,11 @@ io.on('connection', async (socket) => {
   console.log('a user connected');
   socketHandler = new SocketHandler();
   socket.on("msg", (obj) => {
+    console.log("socket.on\n");
     socketHandler.storeMsg(obj);
+    console.log("storeMsg\n");
     io.emit("msg", obj);
+    console.log("io.emit\n");
   });
 
 });

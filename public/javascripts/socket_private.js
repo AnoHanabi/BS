@@ -22,18 +22,18 @@ function getCookie(uid) {
     return c.substring(name.length, c.length);
 }
 
-//channel chat
 function Send() {
     var msg = document.querySelector("#m").value;
     var uid = getCookie("uid");
     var url = window.location.href;
     var arr = url.split("/");
     var len = arr.length;
-    var cid = arr[len - 1];
+    var to = arr[len - 1];
     var data = {
         content: msg,
         uid: uid,
-        cid: cid
+        to: to
+        // cid: cid
     };
     socket.emit("msg", data);
     document.querySelector('#m').value = '';
@@ -44,9 +44,8 @@ socket.on('msg', (obj) => {
     var url = window.location.href;
     var arr = url.split("/");
     var len = arr.length;
-    var gid = arr[len - 3];
-    var cid = arr[len - 1];
-    var link = "/group/" + gid + "/channel/" + cid;
+    var uid = arr[len - 1];
+    var link = "/users/" + uid;
     var ans = link + " #msg";
     $("#msgDiv").load(ans);
     scroll();

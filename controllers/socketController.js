@@ -5,16 +5,22 @@ var Channel = require("../models/channel");
 class SocketHandler {
 
     storeMsg(data) {
-        var newMsg = new Msg({
-            content: data.content,
-            user: data.uid
-        });
+
+        if (data.to) {
+            var newMsg = new Msg({
+                content: data.content,
+                user: data.uid,
+                to: data.to
+            });
+        } else {
+
+            var newMsg = new Msg({
+                content: data.content,
+                user: data.uid
+            });
+
+        }
         newMsg.save();
-
-
-
-
-
         // Msg.update({ _id: newMsg._id }, {
         //     '$push': {
         //         username: newMsg._id
@@ -23,14 +29,15 @@ class SocketHandler {
         //     if (err) { return err; }
 
         // });
-
-        Channel.update({ _id: data.cid }, {
-            '$push': {
-                msg: newMsg._id
-            }
-        }, function (err) {
-            if (err) { return err; }
-        });
+        if (data.cid) {
+            Channel.update({ _id: data.cid }, {
+                '$push': {
+                    msg: newMsg._id
+                }
+            }, function (err) {
+                if (err) { return err; }
+            });
+        }
     }
 
 }

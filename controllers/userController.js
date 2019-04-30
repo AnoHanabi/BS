@@ -1,5 +1,6 @@
 var User = require("../models/user");
 var async = require('async');
+var Msg = require("../models/msg");
 
 exports.user_login_get = function (req, res, next) {
     async.parallel({
@@ -74,7 +75,25 @@ exports.user_msg = function (req, res, next) {
         });
 };
 
-exports.user_logout = function (req,res,next){
+exports.user_logout = function (req, res, next) {
     res.clearCookie("uid");
     res.redirect("/");
 };
+
+exports.user_chat = function (req, res, next) {
+
+    async.parallel({
+        msg: function (callback) {
+            Msg.find(callback)
+                .populate("user");
+        },
+        user: function (callback) {
+            User.findById(req.params.uid)
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+
+        res.render('user_chat', { title: 'User Chat', my_id: req.cookies.uid, msg: results.msg, user: results.user });
+    });
+}
