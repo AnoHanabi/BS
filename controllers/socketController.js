@@ -51,6 +51,36 @@ function decodeBase64Image(base64Str) {
     return image;
 }
 
+function base64ToAudio(base64Str, path, optionalObj) {
+
+
+    if (!base64Str || !path) {
+        throw new Error('Missing mandatory arguments base64 string and/or path string');
+    }
+
+    var optionalObj = optionalObj || {};
+    var audioBuffer = decodeBase64Image(base64Str);
+    var audioType = optionalObj.type || audioBuffer.type || 'png';
+    var fileName = optionalObj.fileName || 'audio-' + Date.now();
+    var abs;
+    var fileName = '' + fileName;
+    audioType = audioType.replace('audio/', '');
+    fileName = fileName + '.' + audioType;
+    abs = path + fileName;
+    var base64Data = base64Str.substring(base64Str.indexOf(",") + 1);
+    fs.writeFile(abs, base64Data, 'base64', function (err) {
+        console.log(err);
+    });
+
+    return {
+        'audioType': audioType,
+        'fileName': fileName
+    };
+}
+
+
+
+
 class SocketHandler {
 
     storeMsg(data) {
@@ -69,7 +99,24 @@ class SocketHandler {
             });
         }
         else {
-            if (data.to) {
+
+
+            if (data.type == "audio") {
+                var base64Str = data.content;
+                var path = '/gitgui/BS/public/audio/';
+                var optionalObj = {};
+                var audioInfo = base64ToAudio(base64Str, path, optionalObj);
+                var audioUrl = "<audio controls src='/audio/" + audioInfo.fileName + "'/>";
+                var newMsg = new Msg({
+                    content: audioUrl,
+                    user: data.uid,
+                    to: data.to,
+                    type: data.type
+                });
+            }
+
+
+            else if (data.to) {
                 var newMsg = new Msg({
                     content: data.content,
                     user: data.uid,

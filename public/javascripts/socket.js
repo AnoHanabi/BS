@@ -41,81 +41,8 @@ document.getElementById('sendImage').addEventListener('change', function () {
     };
 }, false);
 
-// document.getElementById('sendImage').addEventListener('change', function () {
 
-//     // var files = evt.target.files; // FileList object
-
-//     // // Loop through the FileList and render image files as thumbnails.
-//     // for (var i = 0, f; f = files[i]; i++) {
-
-//     //     if (!f.type.match('image.*')) {
-//     //         continue;
-//     //     }
-
-//     //     var reader = new FileReader();
-
-//     //     // Closure to capture the file information.
-//     //     reader.onload = (function (theFile) {
-//     //         return function (e) {
-//     //             // Render thumbnail.
-//     //             document.getElementById("test").innerHTML = '!!!!!!!!!!!!!';
-//     //             e.target.result
-
-//     //             //   var span = document.createElement('span');
-//     //             //   span.innerHTML = ['<img class="thumb" src="', e.target.result,
-//     //             //                     '" title="', escape(theFile.name), '"/>'].join('');
-//     //             //   document.getElementById('list').insertBefore(span, null);
-//     //         };
-//     //     })(f);
-
-//     //     // Read in the image file as a data URL.
-//     //     reader.readAsDataURL(f);
-//     // }
-
-//     if (this.files.length != 0) {
-//         var file = this.files[0];
-//         var reader = new FileReader();
-//         reader.onload = function (e) {
-//             this.value = '';
-//             var uid = getCookie("uid");
-//             var url = window.location.href;
-//             var arr = url.split("/");
-//             var len = arr.length;
-//             var cid = arr[len - 1];
-
-//             var base64Str = e.target.result;
-//             var path = '/images/image/';
-//             var optionalObj = { 'fileName': 'test' };
-//             document.getElementById("test").innerHTML = path + optionalObj;
-//             var imageInfo = base64ToImage(base64Str, path, optionalObj);
-//             var data = {
-//                 content: "<img src='" + imageInfo + "'>",
-//                 // content: e.target.result,
-//                 uid: uid,
-//                 cid: cid,
-//                 type: "img"
-//             };
-//             socket.emit("msg", data);
-
-//             // _displayImage('me', e.target.result);
-//         };
-//         reader.readAsDataURL(file);
-//     };
-// }, false);
-
-// socket.on('newImg', function (img) {
-//     _displayImage(img);
-// });
-
-// function _displayImage(imgData) {
-// var container = document.getElementById('msg'),
-//     msgToDisplay = document.createElement('p');
-// msgToDisplay.innerHTML = "img(src='" + imgData + "')";
-// container.appendChild(msgToDisplay);
-//     document.getElementById("test").innerHTML = '\nimg(src="' + imgData + '")';
-// }
-
-document.querySelector("button").addEventListener("click", () => {
+document.querySelector("#bt").addEventListener("click", () => {
     Send();
 });
 
@@ -225,3 +152,106 @@ function _showEmoji(msg) {
     return result;
 }
 
+function __log(data) {
+    // log.innerHTML += "\n" + e + " " + (data || '');
+    document.getElementById("log").innerHTML=data;
+
+}
+
+var audio_context;
+var recorder;
+
+function startUserMedia(stream) {
+    var input = audio_context.createMediaStreamSource(stream);
+    // __log('Media stream created.');
+    // Uncomment if you want the audio to feedback directly
+    //input.connect(audio_context.destination);
+    //__log('Input connected to audio context destination.');
+
+    recorder = new Recorder(input);
+    // __log('Recorder initialised.');
+    __log("press 'record' to start");
+}
+
+function startRecording(button) {
+    recorder && recorder.record();
+    button.disabled = true;
+    button.nextElementSibling.disabled = false;
+    __log('Recording...');
+}
+
+function stopRecording(button) {
+    recorder && recorder.stop();
+    button.disabled = true;
+    button.previousElementSibling.disabled = false;
+    __log('Stopped recording.');
+
+    // create WAV download link using audio data blob
+    createDownloadLink();
+    recorder.clear();
+}
+
+function createDownloadLink() {
+    recorder && recorder.exportWAV(function (blob) {
+        var fr = new FileReader();
+        fr.onload = function (e) {
+            console.log(e.target.result);
+            var uid = getCookie("uid");
+
+            var url = window.location.href;
+            var arr = url.split("/");
+            var len = arr.length;
+            var cid = arr[len - 1];
+
+            var data = {
+                // content: "<img src='" + e.target.result + "'>",
+                content: e.target.result,
+                uid: uid,
+                cid: cid,
+                type: "audio"
+            };
+            socket.emit("msg", data);
+            
+        };
+        fr.readAsDataURL(blob);
+
+        // var url = URL.createObjectURL(blob);
+        // var li = document.createElement('li');
+        // var au = document.createElement('audio');
+        // var hf = document.createElement('a');
+
+        // au.controls = true;
+        // au.src = url;
+        // hf.href = url;
+        // hf.download = new Date().toISOString() + '.wav';
+        // hf.innerHTML = hf.download;
+        // li.appendChild(au);
+        // li.appendChild(hf);
+        // recordingslist.appendChild(li);
+    });
+}
+
+document.querySelector("#recOpen").addEventListener("click", () => {
+    init();
+});
+
+function init() {
+    try {
+        // webkit shim
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+        window.URL = window.URL || window.webkitURL;
+
+        audio_context = new AudioContext;
+    //     __log('Audio context set up.');
+    //     __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+    } catch (e) {
+        alert('No web audio support in this browser!');
+    }
+
+    navigator.getUserMedia({
+        audio: true
+    }, startUserMedia, function (e) {
+        __log('No live audio input: ' + e);
+    });
+};

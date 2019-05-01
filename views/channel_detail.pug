@@ -4,10 +4,14 @@ html
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         meta(http-equiv="X-UA-Compatible", content="ie=edge")
+        //- script(src="/javascripts/recorder-core.js")
+        //- script(src="/javascripts/mp3.js")
+        //- script(src="/javascripts/mp3-engine.js")
         link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
         script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js')
         script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
         script(src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js')
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/recorderjs/0.1.0/recorder.js")
         link(rel='stylesheet', href='/stylesheets/style.css')
         title=title
     body
@@ -42,6 +46,8 @@ html
                                 //-     li #{msg.user.username} (#{msg.time.getMonth()+1}-#{msg.time.getDate()} #{msg.time.getHours()}:#{msg.time.getMinutes()}) : !{msg.content}
                                 //- else
                                 li #{msg.user.username} (#{msg.time.getMonth()+1}-#{msg.time.getDate()} #{msg.time.getHours()}:#{msg.time.getMinutes()}) : !{msg.content}
+                        
+                        //- ul#recordingslist
                     //- form#f1.form-inline(action="")
                     //-     input#m.form-control(type='text' autocomplete="off" required='true')
                     //-     button.btn.btn-primary(type="button") send
@@ -51,6 +57,15 @@ html
                         label#imageLable(for="sendImage")
                             //- input(type="button" value="image")
                             input#sendImage(type="file" value="image")
+                        //- button(onclick="recopen()") 打开
+                        //- button(onclick="recstart()") 录音
+                        //- button(onclick="recstop()") 停止
+                        //- audio.recPlay(style="width:100%")
+
+                        button#recOpen(type="button") Open Rec
+                        button(onclick="startRecording(this)") record
+                        button#rec(onclick="stopRecording(this)" disabled) stop
+                        span#log
                     div#d1
                         input#m(type='text' autocomplete="off" required='true')
                         button#bt.btn.btn-primary(type="button") send
