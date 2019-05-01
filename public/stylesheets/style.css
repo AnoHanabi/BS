@@ -49,3 +49,23 @@ ul#msg li {
 ul#msg li:nth-child(odd) {
   background: #eee;
 }
+
+#emojiWrapper {
+  display: none;
+  width: 500px;
+  bottom: 40px;
+  position: absolute;
+  background-color: #aaa;
+  box-shadow: 0 0 10px #555;
+}
+
+#emojiWrapper img {
+  margin: 2px;
+  padding: 2px;
+  width: 25px;
+  height: 25px;
+}
+
+#emojiWrapper img:hover {
+  background-color: blue;
+}

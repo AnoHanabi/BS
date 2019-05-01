@@ -38,16 +38,19 @@ html
                     div#msgDiv
                         ul#msg
                             each msg in channel.msg
-                                if msg.type == "img"
-                                    li #{msg.user.username} (#{msg.time.getMonth()+1}-#{msg.time.getDate()} #{msg.time.getHours()}:#{msg.time.getMinutes()}) : !{msg.content}
-                                else
-                                    li #{msg.user.username} (#{msg.time.getMonth()+1}-#{msg.time.getDate()} #{msg.time.getHours()}:#{msg.time.getMinutes()}) : #{msg.content}
+                                //- if msg.type == "img"
+                                //-     li #{msg.user.username} (#{msg.time.getMonth()+1}-#{msg.time.getDate()} #{msg.time.getHours()}:#{msg.time.getMinutes()}) : !{msg.content}
+                                //- else
+                                li #{msg.user.username} (#{msg.time.getMonth()+1}-#{msg.time.getDate()} #{msg.time.getHours()}:#{msg.time.getMinutes()}) : !{msg.content}
                     //- form#f1.form-inline(action="")
                     //-     input#m.form-control(type='text' autocomplete="off" required='true')
                     //-     button.btn.btn-primary(type="button") send
-                    label#imageLable(for="sendImage")
-                        input(type="button" value="image")
-                        input#sendImage(type="file" value="image")
+                    div
+                        input#emoji(type="button" value="emoji")
+                        div#emojiWrapper
+                        label#imageLable(for="sendImage")
+                            //- input(type="button" value="image")
+                            input#sendImage(type="file" value="image")
                     div#d1
                         input#m(type='text' autocomplete="off" required='true')
                         button#bt.btn.btn-primary(type="button") send
