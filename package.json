@@ -12,6 +12,7 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",
+    "feedparser": "^2.2.9",
     "fs": "0.0.1-security",
     "http-errors": "~1.6.2",
     "moment": "^2.24.0",
@@ -19,6 +20,7 @@
     "morgan": "~1.9.0",
     "nodemon": "^1.18.11",
     "pug": "^2.0.3",
+    "request": "^2.88.0",
     "socket.io": "^2.2.0"
   }
 }

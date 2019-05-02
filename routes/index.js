@@ -34,4 +34,8 @@ router.get("/group/:gid/channel/:cid/chat",group_controller.channel_detail_chat)
 
 router.get("/group/:gid/channel/:cid/chat/:date",group_controller.channel_detail_chat_date);
 
+router.get("/group/:gid/rss/create",group_controller.rss_create_get);
+
+router.post("/group/:gid/rss/create",group_controller.rss_create_post);
+
 module.exports = router;

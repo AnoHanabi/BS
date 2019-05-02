@@ -84,55 +84,64 @@ function base64ToAudio(base64Str, path, optionalObj) {
 class SocketHandler {
 
     storeMsg(data) {
-
-        if (data.type == "img") {
-            var base64Str = data.content;
-            var path = '/gitgui/BS/public/images/image/';
-            var optionalObj = {};
-            var imageInfo = base64ToImage(base64Str, path, optionalObj);
-            var imgUrl = "<img src='/images/image/" + imageInfo.fileName + "'>";
+        if (!data.uid) {
             var newMsg = new Msg({
-                content: imgUrl,
-                user: data.uid,
-                to: data.to,
+                content: data.content,
                 type: data.type
             });
         }
         else {
 
-
-            if (data.type == "audio") {
+            if (data.type == "img") {
                 var base64Str = data.content;
-                var path = '/gitgui/BS/public/audio/';
+                var path = '/gitgui/BS/public/images/image/';
                 var optionalObj = {};
-                var audioInfo = base64ToAudio(base64Str, path, optionalObj);
-                var audioUrl = "<audio controls src='/audio/" + audioInfo.fileName + "'/>";
+                var imageInfo = base64ToImage(base64Str, path, optionalObj);
+                var imgUrl = "<img src='/images/image/" + imageInfo.fileName + "'>";
                 var newMsg = new Msg({
-                    content: audioUrl,
+                    content: imgUrl,
                     user: data.uid,
                     to: data.to,
                     type: data.type
                 });
             }
+            else {
 
 
-            else if (data.to) {
-                var newMsg = new Msg({
-                    content: data.content,
-                    user: data.uid,
-                    to: data.to,
-                    type: data.type
-                });
-            } else {
+                if (data.type == "audio") {
+                    var base64Str = data.content;
+                    var path = '/gitgui/BS/public/audio/';
+                    var optionalObj = {};
+                    var audioInfo = base64ToAudio(base64Str, path, optionalObj);
+                    var audioUrl = "<audio controls src='/audio/" + audioInfo.fileName + "'/>";
+                    var newMsg = new Msg({
+                        content: audioUrl,
+                        user: data.uid,
+                        to: data.to,
+                        type: data.type
+                    });
+                }
 
-                var newMsg = new Msg({
-                    content: data.content,
-                    user: data.uid,
-                    type: data.type
-                });
 
+                else if (data.to) {
+                    var newMsg = new Msg({
+                        content: data.content,
+                        user: data.uid,
+                        to: data.to,
+                        type: data.type
+                    });
+                } else {
+
+                    var newMsg = new Msg({
+                        content: data.content,
+                        user: data.uid,
+                        type: data.type
+                    });
+
+                }
             }
         }
+        
         newMsg.save();
         // Msg.update({ _id: newMsg._id }, {
         //     '$push': {

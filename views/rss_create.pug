@@ -1,0 +1,15 @@
+extends layout
+
+block content
+
+    form(method='POST' action='')
+        div.form-group
+            label(for='channelname') RSSname:
+            input#rssname.form-control(type='text' name='rssname' required='true')
+        div.form-group
+            label(for='link') link:
+            input#link.form-control(type='text' name='link' required='true')  
+        button.btn.btn-primary(type='submit') Submit
+
+    hr
+    p #{err1}

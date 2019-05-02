@@ -3,6 +3,9 @@ var async = require('async');
 var User = require("../models/user");
 var Channel = require("../models/channel");
 var Msg = require("../models/msg");
+var FeedParser = require('feedparser');
+var request = require('request');
+var SocketHandler = require('./socketController');
 
 function alertMessage(message, res) {
     var alert = `<script>alert('${message}');history.back();</script>`;
@@ -100,7 +103,7 @@ exports.channel_detail = function (req, res, next) {
         }
     }, function (err, results) {
         if (err) { return next(err); }
-        res.render('channel_detail', { title: 'Channel Detail', my_id: req.cookies.uid, msg: results.msg, group: results.group, channel: results.channel });
+        res.render('channel_detail', { title: 'Channel Detail', isRss: results.channel.channelname.indexOf("RSS-"), my_id: req.cookies.uid, msg: results.msg, group: results.group, channel: results.channel });
     });
 };
 
@@ -135,7 +138,28 @@ exports.channel_detail_chat = function (req, res, next) {
 }
 
 exports.channel_detail_chat_date = function (req, res, next) {
-    res.render('channel_detail_chat_date', { title: 'channel detail chat date' });
+    async.parallel({
+        channel: function (callback) {
+            Channel.findById(req.params.cid)
+                .populate({
+                    path: 'msg',
+                    populate: {
+                        path: 'user'
+                    }
+                })
+                .exec(callback);
+        },
+    }, function (err, results) {
+        if (err) { return next(err); }
+        var chatDate = req.params.date;
+        var year = chatDate.split("-")[0];
+        var month = chatDate.split("-")[1];
+        var day = chatDate.split("-")[2];
+        var yearNum = parseInt(year);
+        var monthNum = parseInt(month);
+        var dayNum = parseInt(day);
+        res.render('channel_detail_chat_date', { title: 'channel detail chat date', yearNum: yearNum, monthNum: monthNum, dayNum: dayNum, channel: results.channel });
+    });
 }
 
 exports.channel_create_get = function (req, res, next) {
@@ -151,6 +175,11 @@ exports.channel_create_get = function (req, res, next) {
         res.render("channel_create", { title: "create channel", groups: results.groups, channels: results.channels, err1: "" });
     });
 };
+
+exports.rss_create_get = function (req, res, next) {
+    res.render("rss_create", { title: "create rss", err1: "" })
+};
+
 
 exports.channel_create_post = [
 
@@ -191,6 +220,83 @@ exports.channel_create_post = [
                         }, function (err) {
                             if (err) { return next(err); }
                             res.render("channel_create", { title: "create channel", err1: "频道创建成功" });
+                        });
+                    });
+                }
+            });
+    }
+];
+
+exports.rss_create_post = [
+    (req, res, next) => {
+        var channel = new Channel({
+            channelname: "RSS-" + req.body.rssname,
+            announce: req.body.link,
+            user: req.cookies.uid
+        });
+        var rssname = "RSS-" + req.body.rssname;
+
+        Group.findOne({ "_id": req.params.gid })
+            .populate("channel")
+            .exec(function (err, found_group) {
+                if (err) { return next(err); }
+                var found_channel = 0;
+                for (var i = 0; i < found_group.channel.length; i++) {
+                    if (found_group.channel[i].channelname == rssname) {
+                        found_channel = 1;
+                        break;
+                    }
+                }
+                if (found_channel) {
+                    res.render("rss_create", { title: "create rss", err1: "RSS频道已存在" });
+                }
+                else {
+
+                    request(req.body.link)
+                        .on('error', function (error) {
+                            console.error(error);
+                        })
+                        .pipe(new FeedParser())
+                        .on('error', function (error) {
+                            console.error(error);
+                        });
+
+                    channel.save(function (err) {
+                        if (err) { return next(err); }
+                    });
+                    found_group.update({
+                        '$push': {
+                            channel: channel._id
+                        }
+                    }, function (err) {
+                        if (err) { return next(err); }
+                        User.update({ _id: req.cookies.uid }, {
+                            '$push': {
+                                admin: channel._id
+                            }
+                        }, function (err) {
+                            if (err) { return next(err); }
+                            var socketHandler = new SocketHandler();
+                            request(req.body.link)
+                                .pipe(new FeedParser())
+                                .on('meta', function (meta) {
+                                    console.log('===== %s =====', meta.title);
+                                })
+                                .on('readable', function () {
+                                    var stream = this, item;
+                                    while (item = stream.read()) {
+                                        // console.log('Got article: %s', item.title);
+                                        var content = item.title + " <a href='" + item.link + "'>" + item.link + "</a>";
+                                        var obj = {
+                                            content: content,
+                                            type: rssname,
+                                            cid: channel._id
+                                        };
+                                        socketHandler.storeMsg(obj);
+                                    }
+                                });
+
+                            res.render("rss_create", { title: "create rss", err1: "RSS频道创建成功" });
                         });
                     });
                 }

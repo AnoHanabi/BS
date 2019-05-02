@@ -1,4 +1,8 @@
 extends layout
 
 block content
-    h1 #{title}
+    div#msgDiv
+        ul#msg
+            each msg in channel.msg
+                if msg.time.getYear()+1900==yearNum && msg.time.getMonth()+1==monthNum && msg.time.getDate()==dayNum
+                    li #{msg.user.username} (#{msg.time.getMonth()+1}-#{msg.time.getDate()} #{msg.time.getHours()}:#{msg.time.getMinutes()}) : !{msg.content}

@@ -258,7 +258,9 @@ function init() {
 };
 
 function changeDate() {
-    var chatDate=document.getElementById("date").value;
+    var chatDate = document.getElementById("date").value;
     var url = window.location.href;
-    location.href=url+"/"+chatDate;
+    var link = url + "/" + chatDate;
+    var ans = link + " #msg";
+    $("#msgDiv").load(ans);
 }
