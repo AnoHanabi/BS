@@ -40,20 +40,24 @@ function Send() {
         to: to
         // cid: cid
     };
-    socket.emit("msg", data);
+    socket.emit("msg", uid, to, data);
     document.querySelector('#m').value = '';
 }
 
-socket.on('msg', (obj) => {
+socket.on('msg', (from, to, obj) => {
     //location.reload();
-    var url = window.location.href;
-    var arr = url.split("/");
-    var len = arr.length;
-    var uid = arr[len - 1];
-    var link = "/users/" + uid;
-    var ans = link + " #msg";
-    $("#msgDiv").load(ans);
-    scroll();
+    if (getCookie("uid") == from || getCookie("uid") == to) {
+
+        var url = window.location.href;
+        var arr = url.split("/");
+        var len = arr.length;
+        var uid = arr[len - 1];
+        var link = "/users/" + uid;
+        var ans = link + " #msg";
+        $("#msgDiv").load(ans);
+        scroll();
+    }
+
 });
 
 function scroll() {

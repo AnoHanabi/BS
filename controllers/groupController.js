@@ -104,6 +104,40 @@ exports.channel_detail = function (req, res, next) {
     });
 };
 
+exports.channel_detail_chat = function (req, res, next) {
+
+    async.parallel({
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                // .populate('channel')
+                .exec(callback);
+        },
+        channel: function (callback) {
+            Channel.findById(req.params.cid)
+                // .populate('user')
+                // .populate("msg")
+                .populate({
+                    path: 'msg',
+                    populate: {
+                        path: 'user'
+                    }
+                })
+                .exec(callback);
+        },
+        // msg: function (callback) {
+        //     Msg.find(callback);
+        //     // .populate("user");
+        // }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        res.render('channel_detail_chat', { title: 'channel detail chat', group: results.group, channel: results.channel });
+    });
+}
+
+exports.channel_detail_chat_date = function (req, res, next) {
+    res.render('channel_detail_chat_date', { title: 'channel detail chat date' });
+}
+
 exports.channel_create_get = function (req, res, next) {
     async.parallel({
         groups: function (callback) {

@@ -30,4 +30,8 @@ router.post("/group/:gid/channel/create",group_controller.channel_create_post);
 
 router.get("/group/:gid/channel/:cid",group_controller.channel_detail);
 
+router.get("/group/:gid/channel/:cid/chat",group_controller.channel_detail_chat);
+
+router.get("/group/:gid/channel/:cid/chat/:date",group_controller.channel_detail_chat_date);
+
 module.exports = router;

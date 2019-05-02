@@ -14,6 +14,7 @@ socket.on('connect', function () {
     socket.emit('join', uid);
 });
 
+
 document.getElementById('sendImage').addEventListener('change', function () {
     if (this.files.length != 0) {
         var file = this.files[0],
@@ -154,7 +155,7 @@ function _showEmoji(msg) {
 
 function __log(data) {
     // log.innerHTML += "\n" + e + " " + (data || '');
-    document.getElementById("log").innerHTML=data;
+    document.getElementById("log").innerHTML = data;
 
 }
 
@@ -211,7 +212,7 @@ function createDownloadLink() {
                 type: "audio"
             };
             socket.emit("msg", data);
-            
+
         };
         fr.readAsDataURL(blob);
 
@@ -243,8 +244,8 @@ function init() {
         window.URL = window.URL || window.webkitURL;
 
         audio_context = new AudioContext;
-    //     __log('Audio context set up.');
-    //     __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+        //     __log('Audio context set up.');
+        //     __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
     } catch (e) {
         alert('No web audio support in this browser!');
     }
@@ -255,3 +256,9 @@ function init() {
         __log('No live audio input: ' + e);
     });
 };
+
+function changeDate() {
+    var chatDate=document.getElementById("date").value;
+    var url = window.location.href;
+    location.href=url+"/"+chatDate;
+}

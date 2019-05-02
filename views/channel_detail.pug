@@ -32,7 +32,7 @@ html
                                 a(href="/group") All group
                     
                 div(class='col-md-8')
-                    p group:#{group.groupname}
+                    p group:#{group.groupname} 
                     p channel:
                         each channel,index in group.channel
                             a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
@@ -81,5 +81,7 @@ html
                                 a(href="/users/"+user._id) #{user.username}
                             else
                                 span #{user.username}
+                    hr
+                    a(href="/group/"+group._id+"/channel/"+channel._id+"/chat") 聊天记录
 
     script(src="/javascripts/socket.js")

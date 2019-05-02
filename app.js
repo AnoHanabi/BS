@@ -69,24 +69,25 @@ io.on('connection', async (socket) => {
   //   console.log("io.emit\n");
   // });
   if (private == "users") {
-    socket.on('msg', (obj) => {
-      if (roomInfo[user].indexOf(roomID) == -1) {
-        return false;
-      }
+    socket.on('msg', (from, to, obj) => {
+      // console.log(user+"\n"+roomID+"\n"+roomInfo[user]);
+      // if (roomInfo[user].indexOf(roomID) == -1) {
+      //   return false;
+      // }
       console.log("socket.on");
       socketHandler.storeMsg(obj);
       console.log("storeMsg");
-      io.to(user).emit("msg", obj);
-      io.to(roomID).emit("msg", obj);
+      io.to(user).emit("msg", from, to, obj);
+      io.to(roomID).emit("msg", from, to, obj);
       console.log("io.emit");
     });
 
   }
   else {
     socket.on('msg', (obj) => {
-      if (roomInfo[roomID].indexOf(user) == -1) {
-        return false;
-      }
+      // if (roomInfo[roomID].indexOf(user) == -1) {
+      //   return false;
+      // }
 
       console.log("socket.on");
       socketHandler.storeMsg(obj);
