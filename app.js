@@ -56,6 +56,7 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', function () {
     // user = userID; 
     var index = roomInfo[roomID].indexOf(user);
+    
     if (index != -1) {
       roomInfo[roomID].splice(index, 1);
     }

@@ -38,4 +38,10 @@ router.get("/group/:gid/rss/create",group_controller.rss_create_get);
 
 router.post("/group/:gid/rss/create",group_controller.rss_create_post);
 
+router.get("/group/:gid/aggregation/setting",group_controller.aggregation_setting_get);
+
+router.post("/group/:gid/aggregation/setting",group_controller.aggregation_setting_post);
+
+router.get("/group/:gid/aggregation",group_controller.aggregation_detail);
+
 module.exports = router;

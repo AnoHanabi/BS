@@ -1,5 +1,6 @@
 var Msg = require('../models/msg');
 var Channel = require("../models/channel");
+var Aggregation = require("../models/aggregation");
 var fs = require('fs');
 
 function base64ToImage(base64Str, path, optionalObj) {
@@ -82,7 +83,24 @@ function base64ToAudio(base64Str, path, optionalObj) {
 
 
 class SocketHandler {
+    // storeAggregation(aggregation) {
 
+    //     for (var i = 0; i < aggregation.channel.length; i++) {
+    //         Channel.findOne({ "_id": aggregation.channel[i] })
+    //             .exec(function (err, found_channel) {
+    //                 for (var j = 0; j < found_channel.msg.length; j++) {
+    //                     aggregation.update({
+    //                         '$push': {
+    //                             msg: found_channel.msg[j]
+    //                         }
+    //                     }, function (err) {
+    //                         if (err) { return next(err); }
+    //                     });
+    //                 }
+    //             });
+    //     }
+
+    // }
     storeMsg(data) {
         if (!data.uid) {
             var newMsg = new Msg({
@@ -141,7 +159,7 @@ class SocketHandler {
                 }
             }
         }
-        
+
         newMsg.save();
         // Msg.update({ _id: newMsg._id }, {
         //     '$push': {

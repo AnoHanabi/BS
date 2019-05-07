@@ -15,6 +15,10 @@ socket.on('connect', function () {
 });
 
 
+$(document).ready(function () {
+    scroll();
+});
+
 document.getElementById('sendImage').addEventListener('change', function () {
     if (this.files.length != 0) {
         var file = this.files[0],
@@ -47,9 +51,6 @@ document.querySelector("#bt").addEventListener("click", () => {
     Send();
 });
 
-$(document).ready(function () {
-    scroll();
-});
 
 function getCookie(uid) {
     var name = uid + "=";
@@ -263,4 +264,8 @@ function changeDate() {
     var link = url + "/" + chatDate;
     var ans = link + " #msg";
     $("#msgDiv").load(ans);
+}
+
+function getValue(checkbox) {
+    checkbox.value=checkbox.nextElementSibling.innerHTML;
 }

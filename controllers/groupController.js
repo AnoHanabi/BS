@@ -6,12 +6,17 @@ var Msg = require("../models/msg");
 var FeedParser = require('feedparser');
 var request = require('request');
 var SocketHandler = require('./socketController');
+var Aggregation = require("../models/aggregation");
 
 function alertMessage(message, res) {
     var alert = `<script>alert('${message}');history.back();</script>`;
     res.send(alert);
 }
-
+function alertMessage1(message, res) {
+    var alert = `<script>alert('${message}');history.back();</script>`;
+    res.send(alert);
+    return next();
+}
 
 exports.group_create_get = function (req, res, next) {
     async.parallel({
@@ -286,7 +291,7 @@ exports.rss_create_post = [
                                     var stream = this, item;
                                     while (item = stream.read()) {
                                         // console.log('Got article: %s', item.title);
-                                        var content = item.title + " <a href='" + item.link + "'>" + item.link + "</a>";
+                                        var content = " <a href='" + item.link + "'>" + item.title + "</a>";
                                         var obj = {
                                             content: content,
                                             type: rssname,
@@ -348,3 +353,127 @@ exports.group_add = function (req, res, next) {
     });
 };
 
+
+exports.aggregation_setting_get = function (req, res, next) {
+    async.parallel({
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                .populate("channel")
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        res.render("aggregation_setting", { title: "aggregation setting", group: results.group });
+    });
+};
+
+exports.aggregation_setting_post = [
+    (req, res, next) => {
+        if (typeof (req.body.aggregation) == "string") {
+            alertMessage1("请选择多个频道！", res);
+        }
+
+        Aggregation.findOne({ "user": req.cookies.uid, "group": req.params.gid })
+            .populate("channel")
+            .exec(function (err, found_aggregation) {
+                if (found_aggregation) {
+
+                    Aggregation.update({ _id: found_aggregation._id }, { $set: { channel: [], msg: [] } }, function (err) {
+
+                        if (err) { return next(err); }
+                        Group.findOne({ "_id": req.params.gid })
+                            .populate('channel')
+                            .exec(function (err, found_group) {
+                                for (var i = 0; i < req.body.aggregation.length; i++) {
+                                    for (var j = 0; j < found_group.channel.length; j++) {
+                                        if (found_group.channel[j].channelname == req.body.aggregation[i]) {
+                                            found_aggregation.update({
+                                                '$push': {
+                                                    channel: found_group.channel[j]._id
+                                                }
+                                            }, function (err) {
+                                                if (err) { return next(err); }
+                                            });
+                                            for (var k = 0; k < found_group.channel[j].msg.length; k++) {
+                                                found_aggregation.update({
+                                                    '$push': {
+                                                        msg: found_group.channel[j].msg[k]
+                                                    }
+                                                }, function (err) {
+                                                    if (err) { return next(err); }
+                                                });
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            });
+                    });
+
+                }
+                else {
+                    var aggregation = new Aggregation({
+                        user: req.cookies.uid,
+                        group: req.params.gid
+                    });
+                    Group.findOne({ "_id": req.params.gid })
+                        .populate("channel")
+                        .exec(function (err, found_group) {
+                            for (var i = 0; i < req.body.aggregation.length; i++) {
+                                for (var j = 0; j < found_group.channel.length; j++) {
+                                    if (found_group.channel[j].channelname == req.body.aggregation[i]) {
+                                        aggregation.update({
+                                            '$push': {
+                                                channel: found_group.channel[j]._id
+                                            }
+                                        }, function (err) {
+                                            if (err) { return next(err); }
+                                        });
+                                        for (var k = 0; k < found_group.channel[j].msg.length; k++) {
+                                            aggregation.update({
+                                                '$push': {
+                                                    msg: found_group.channel[j].msg[k]
+                                                }
+                                            }, function (err) {
+                                                if (err) { return next(err); }
+                                            });
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+                    aggregation.save(function (err) {
+                        if (err) { return next(err); }
+                    });
+
+                }
+                res.redirect("/group/" + req.params.gid + "/aggregation");
+            });
+    }
+];
+
+exports.aggregation_detail = function (req, res, next) {
+    async.parallel({
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                .populate('channel')
+                .exec(callback);
+        },
+        aggregation: function (callback) {
+            Aggregation.findOne({ "user": req.cookies.uid, "group": req.params.gid })
+                .populate("channel")
+                // .populate({ path: 'msg', options: { sort: { 'time': -1 } } })
+                .populate({
+                    path: 'msg', options: { sort: { 'time': 1 } },
+                    populate: {
+                        path: 'user'
+                    }
+                })
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        res.render("aggregation_detail", { title: "aggregation detail", aggregation: results.aggregation, group: results.group });
+    });
+};
