@@ -42,6 +42,6 @@ router.get("/group/:gid/aggregation/setting",group_controller.aggregation_settin
 
 router.post("/group/:gid/aggregation/setting",group_controller.aggregation_setting_post);
 
-router.get("/group/:gid/aggregation",group_controller.aggregation_detail);
+router.get("/group/:gid/aggregation/:aid",group_controller.aggregation_detail);
 
 module.exports = router;

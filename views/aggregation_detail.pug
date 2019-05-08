@@ -4,7 +4,7 @@ html
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         meta(http-equiv="X-UA-Compatible", content="ie=edge")
-        meta(http-equiv="refresh" content="2")
+        //- meta(http-equiv="refresh" content="2")
         //- script(src="/javascripts/recorder-core.js")
         //- script(src="/javascripts/mp3.js")
         //- script(src="/javascripts/mp3-engine.js")
@@ -45,7 +45,7 @@ html
                             a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
                             if index<group.channel.length
                                 |&nbsp;/&nbsp;
-                        a(href="/group/"+group._id+"/aggregation") My Aggregation
+                        a(href="/group/"+group._id+"/aggregation/"+aggregation._id) My Aggregation
                     div#msgDiv
                         ul#msg
                             each msg in aggregation.msg
@@ -97,5 +97,6 @@ html
                     p Channel:
                     each channel in aggregation.channel
                         p #{channel.channelname}
+                    hr
 
     script(src="/javascripts/socket.js")

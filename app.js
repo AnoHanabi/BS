@@ -7,6 +7,8 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+var Aggregation = require("./models/aggregation");
+
 // var FeedParser = require('feedparser');
 // var request = require('request');
 
@@ -37,6 +39,29 @@ io.on('connection', async (socket) => {
 
   socket.on('join', function (userID) {
     user = userID;
+
+    if (private == "aggregation") {
+      var gid = channel[channel.length - 3];
+      Aggregation.findOne({ "user": user, "group": gid })
+        .exec(function (err, found_aggregation) {
+          if (found_aggregation._id == roomID) {
+            for (var i = 0; i < found_aggregation.channel.length; i++) {
+              var room_ID = found_aggregation.channel[i];
+              if (!roomInfo[room_ID]) {
+                roomInfo[room_ID] = [];
+              }
+              var index = roomInfo[room_ID].indexOf(user);
+              if (index == -1) {
+                roomInfo[room_ID].push(user);
+              }
+              socket.join(room_ID);
+              console.log(user + ' join ' + room_ID);
+              console.log(roomInfo[room_ID]);
+            }
+          }
+        });
+    }
+
     if (!roomInfo[roomID]) {
       roomInfo[roomID] = [];
     }
@@ -55,8 +80,28 @@ io.on('connection', async (socket) => {
 
   socket.on('disconnect', function () {
     // user = userID; 
+
+    if (private == "aggregation") {
+      var gid = channel[channel.length - 3];
+      Aggregation.findOne({ "user": user, "group": gid })
+        .exec(function (err, found_aggregation) {
+          if (found_aggregation._id == roomID) {
+            for (var i = 0; i < found_aggregation.channel.length; i++) {
+              var room_ID = found_aggregation.channel[i];
+              var index = roomInfo[room_ID].indexOf(user);
+              if (index != -1) {
+                roomInfo[room_ID].splice(index, 1);
+              }
+              socket.leave(room_ID);
+              console.log(user + ' quit ' + room_ID);
+              console.log(roomInfo[room_ID]);
+            }
+          }
+        });
+    }
+
     var index = roomInfo[roomID].indexOf(user);
-    
+
     if (index != -1) {
       roomInfo[roomID].splice(index, 1);
     }
@@ -96,7 +141,9 @@ io.on('connection', async (socket) => {
       console.log("socket.on");
       socketHandler.storeMsg(obj);
       console.log("storeMsg");
+      io.to(roomID).emit("msg2", obj);
       io.to(roomID).emit("msg", obj);
+      // io.to("5cd2e7a6a35438719b5b41d8").emit("msg", obj);
       console.log("io.emit");
     });
   }

@@ -34,6 +34,8 @@ html
                             span #{channel.channelname}
                             br
                         button.btn.btn-primary(type='submit') Submit
+                    if aggregation
+                        a(href="/group/"+group._id+"/aggregation/"+aggregation._id) Go to aggregation
                     //- input(type="checkbox" id="test1" onchange="tt(this)" value='0')
                     //- span 222
                     //- //- input(type="text" value="111" id="test2")

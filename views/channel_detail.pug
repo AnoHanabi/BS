@@ -44,7 +44,8 @@ html
                             a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
                             if index<group.channel.length
                                 |&nbsp;/&nbsp;
-                        a(href="/group/"+group._id+"/aggregation") My Aggregation
+                        if(aggregation)
+                            a(href="/group/"+group._id+"/aggregation/"+aggregation._id) My Aggregation
                     div#msgDiv
                         ul#msg
                             each msg in channel.msg
@@ -76,7 +77,7 @@ html
                             button#rec(onclick="stopRecording(this)" disabled) stop
                             span#log
                             div#d1
-                                input#m(type='text' autocomplete="off" required='true')
+                                input#m(autofocus="autofocus" type='text' autocomplete="off" required='true')
                                 button#bt.btn.btn-primary(type="button") send
 
                 div(Class="col-md-2")
@@ -93,5 +94,6 @@ html
                     hr
                     if isRss == -1
                         a(href="/group/"+group._id+"/channel/"+channel._id+"/chat") 聊天记录
+                    hr
 
     script(src="/javascripts/socket.js")

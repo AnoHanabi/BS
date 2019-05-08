@@ -105,10 +105,14 @@ exports.channel_detail = function (req, res, next) {
         msg: function (callback) {
             Msg.find(callback)
                 .populate("user");
+        },
+        aggregation: function (callback) {
+            Aggregation.findOne({ "user": req.cookies.uid, "group": req.params.gid })
+                .exec(callback);
         }
     }, function (err, results) {
         if (err) { return next(err); }
-        res.render('channel_detail', { title: 'Channel Detail', isRss: results.channel.channelname.indexOf("RSS-"), my_id: req.cookies.uid, msg: results.msg, group: results.group, channel: results.channel });
+        res.render('channel_detail', { title: 'Channel Detail', isRss: results.channel.channelname.indexOf("RSS-"), my_id: req.cookies.uid, msg: results.msg, group: results.group, channel: results.channel, aggregation: results.aggregation });
     });
 };
 
@@ -360,19 +364,22 @@ exports.aggregation_setting_get = function (req, res, next) {
             Group.findById(req.params.gid)
                 .populate("channel")
                 .exec(callback);
+        },
+        aggregation: function (callback) {
+            Aggregation.findOne({ "user": req.cookies.uid, "group": req.params.gid })
+                .exec(callback);
         }
     }, function (err, results) {
         if (err) { return next(err); }
-        res.render("aggregation_setting", { title: "aggregation setting", group: results.group });
+        res.render("aggregation_setting", { title: "aggregation setting", group: results.group, aggregation: results.aggregation });
     });
 };
 
 exports.aggregation_setting_post = [
     (req, res, next) => {
-        if (typeof (req.body.aggregation) == "string") {
+        if (typeof (req.body.aggregation) == "string" || typeof (req.body.aggregation) == "undefined") {
             alertMessage1("请选择多个频道！", res);
         }
-
         Aggregation.findOne({ "user": req.cookies.uid, "group": req.params.gid })
             .populate("channel")
             .exec(function (err, found_aggregation) {
@@ -409,6 +416,7 @@ exports.aggregation_setting_post = [
                                 }
                             });
                     });
+                    // res.redirect("/group/" + req.params.gid + "/aggregation/" + found_aggregation._id);
 
                 }
                 else {
@@ -446,14 +454,34 @@ exports.aggregation_setting_post = [
                     aggregation.save(function (err) {
                         if (err) { return next(err); }
                     });
-
+                    // res.redirect("/group/" + req.params.gid + "/aggregation/" + aggregation._id);
                 }
-                res.redirect("/group/" + req.params.gid + "/aggregation");
+                alertMessage("创建成功！", res);
             });
     }
 ];
 
 exports.aggregation_detail = function (req, res, next) {
+
+    Aggregation.findOne({ "user": req.cookies.uid, "group": req.params.gid })
+        .populate("channel")
+        .exec(function (err, found_aggregation) {
+            Aggregation.update({ _id: found_aggregation._id }, { $set: { msg: [] } }, function (err) {
+                if (err) { return next(err); }
+                for (var i = 0; i < found_aggregation.channel.length; i++) {
+                    for (var j = 0; j < found_aggregation.channel[i].msg.length; j++) {
+                        found_aggregation.update({
+                            '$push': {
+                                msg: found_aggregation.channel[i].msg[j]
+                            }
+                        }, function (err) {
+                            if (err) { return next(err); }
+                        });
+                    }
+                }
+            });
+        });
+
     async.parallel({
         group: function (callback) {
             Group.findById(req.params.gid)
@@ -474,6 +502,7 @@ exports.aggregation_detail = function (req, res, next) {
         }
     }, function (err, results) {
         if (err) { return next(err); }
+
         res.render("aggregation_detail", { title: "aggregation detail", aggregation: results.aggregation, group: results.group });
     });
 };

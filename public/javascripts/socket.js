@@ -14,41 +14,8 @@ socket.on('connect', function () {
     socket.emit('join', uid);
 });
 
-
 $(document).ready(function () {
     scroll();
-});
-
-document.getElementById('sendImage').addEventListener('change', function () {
-    if (this.files.length != 0) {
-        var file = this.files[0],
-            reader = new FileReader();
-        reader.onload = function (e) {
-            this.value = '';
-
-            var uid = getCookie("uid");
-            var url = window.location.href;
-            var arr = url.split("/");
-            var len = arr.length;
-            var cid = arr[len - 1];
-            var data = {
-                // content: "<img src='" + e.target.result + "'>",
-                content: e.target.result,
-                uid: uid,
-                cid: cid,
-                type: "img"
-            };
-            socket.emit("msg", data);
-
-            // _displayImage('me', e.target.result);
-        };
-        reader.readAsDataURL(file);
-    };
-}, false);
-
-
-document.querySelector("#bt").addEventListener("click", () => {
-    Send();
 });
 
 
@@ -88,17 +55,74 @@ socket.on('msg', (obj) => {
     var url = window.location.href;
     var arr = url.split("/");
     var len = arr.length;
+    if (arr[len - 2] == "aggregation") {
+        return;
+    }
     var gid = arr[len - 3];
     var cid = arr[len - 1];
     var link = "/group/" + gid + "/channel/" + cid;
     var ans = link + " #msg";
     $("#msgDiv").load(ans);
-    scroll();
+    // scroll();
+    
+    location.reload();
 });
+
+socket.on('msg2', (obj) => {
+    //location.reload();
+    var url = window.location.href;
+    var arr = url.split("/");
+    var len = arr.length;
+    var ans;
+    if (arr[len - 2] != "aggregation"){
+        return;
+    }
+    if (arr[len - 2] == "aggregation") {
+        var gid = arr[len - 3];
+        var aid = arr[len - 1];
+        var link = "/group/" + gid + "/aggregation/" + aid;
+        ans = link + " #msg";
+        $("#msgDiv").load(ans);
+    }
+    location.reload();
+});
+
+document.getElementById('sendImage').addEventListener('change', function () {
+    if (this.files.length != 0) {
+        var file = this.files[0],
+            reader = new FileReader();
+        reader.onload = function (e) {
+            this.value = '';
+
+            var uid = getCookie("uid");
+            var url = window.location.href;
+            var arr = url.split("/");
+            var len = arr.length;
+            var cid = arr[len - 1];
+            var data = {
+                // content: "<img src='" + e.target.result + "'>",
+                content: e.target.result,
+                uid: uid,
+                cid: cid,
+                type: "img"
+            };
+            socket.emit("msg", data);
+
+            // _displayImage('me', e.target.result);
+        };
+        reader.readAsDataURL(file);
+    };
+}, false);
+
+
+document.querySelector("#bt").addEventListener("click", () => {
+    Send();
+});
+
 
 function scroll() {
     var div = document.getElementById('msgDiv');
-    div.innerHTML = div.innerHTML + '<br><br><br><br><br><br><br><br><br><br><br><br>';
+    div.innerHTML = div.innerHTML + '<br>';
     div.scrollTop = div.scrollHeight;
 }
 
@@ -267,5 +291,5 @@ function changeDate() {
 }
 
 function getValue(checkbox) {
-    checkbox.value=checkbox.nextElementSibling.innerHTML;
+    checkbox.value = checkbox.nextElementSibling.innerHTML;
 }
