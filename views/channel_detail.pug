@@ -46,8 +46,15 @@ html
                             if channel.channelname!="Default"
                                 |(
                                 a(href="/group/"+group._id+"/channel/"+channel._id+"/add") add)
+                            |(
+                            a(href="/group/"+group._id+"/channel/"+channel._id+"/edit") edit)
+                            |
+                            if channel.channelname!="Default"
                                 |(
                                 a(href="/group/"+group._id+"/channel/"+channel._id+"/quit") quit)
+                                |(
+                                a(href="/group/"+group._id+"/channel/"+channel._id+"/delete") delete)
+
                             if index<group.channel.length
                                 |&nbsp;/&nbsp;
                         if(aggregation)

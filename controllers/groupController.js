@@ -9,7 +9,7 @@ var SocketHandler = require('./socketController');
 var Aggregation = require("../models/aggregation");
 
 function alertMessage(message, res) {
-    if (message == "退出成功") {
+    if (message == "退出成功" || message == "解散频道成功" || message == "解散群组成功") {
         var alert = `<script>alert('${message}');window.location.href='/group';</script>`;
     } else {
         var alert = `<script>alert('${message}');history.back();</script>`;
@@ -234,7 +234,22 @@ exports.channel_create_get = function (req, res, next) {
 };
 
 exports.rss_create_get = function (req, res, next) {
-    res.render("rss_create", { title: "create rss", err1: "" })
+    async.parallel({
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                .populate("channel")
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        if (results.group.channel[0].user[0] == req.cookies.uid) {
+            res.render("rss_create", { title: "create rss", err1: "" });
+        }
+        else {
+            alertMessage("你不是该群群主，无法创建RSS频道", res);
+        }
+
+    });
 };
 
 
@@ -401,6 +416,232 @@ exports.group_add = function (req, res, next) {
                     alertMessage("加入成功", res);
                 });
             });
+        }
+    });
+};
+
+exports.group_edit_get = function (req, res, next) {
+    async.parallel({
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                .populate("channel")
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        if (results.group.channel[0].user[0] == req.cookies.uid) {
+            res.render("group_edit", { title: "edit group", err1: "" });
+        }
+        else {
+            alertMessage("你不是该群群主，无法修改群信息", res);
+        }
+    });
+};
+
+exports.group_edit_post = [
+    (req, res, next) => {
+        Group.findById(req.params.gid)
+            .exec(function (err, found_group) {
+                if (err) { return next(err); }
+                if (req.body.groupname == found_group.groupname) {
+                    res.render("group_edit", { title: "edit group", err1: "请勿与原群名重复" });
+                }
+                else {
+                    Group.findOne({ "groupname": req.body.groupname })
+                        .exec(function (err, found_group2) {
+                            if (err) { return next(err); }
+                            if (found_group2) {
+                                res.render("group_edit", { title: "edit group", err1: "请勿与其他群名重复" });
+                            }
+                            else {
+                                found_group.update({
+                                    "$set": {
+                                        groupname: req.body.groupname
+                                    }
+                                }, function (err) {
+                                    if (err) { return next(err); }
+                                });
+                                res.render("group_edit", { title: "edit group", err1: "修改成功" });
+                            }
+                        });
+                }
+            });
+    }
+];
+
+exports.channel_detail_edit_get = function (req, res, next) {
+    async.parallel({
+        user: function (callback) {
+            User.findById(req.cookies.uid)
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        var isAdmin = 0;
+        for (var i = 0; i < results.user.admin.length; i++) {
+            if (results.user.admin[i] == req.params.cid) {
+                isAdmin = 1;
+                break;
+            }
+        }
+        if (isAdmin) {
+            res.render("channel_edit", { title: "edit channel", err1: "" });
+        }
+        else {
+            alertMessage("你不是该频道管理员，无法修改频道信息", res);
+        }
+    });
+};
+
+exports.channel_detail_edit_post = [
+    (req, res, next) => {
+        Channel.findOne({ "channelname": req.body.channelname })
+            .exec(function (err, found_channel) {
+                if (err) { return next(err) }
+                // console.log(found_channel._id);
+                // console.log(req.params.cid);
+                if (found_channel && found_channel._id != req.params.cid) {
+                    res.render("channel_edit", { title: "edit channel", err1: "请勿与其他频道名重复" });
+                }
+                else {
+                    Channel.findById(req.params.cid)
+                        .exec(function (err, found_channel2) {
+                            if (err) { return next(err); }
+                            found_channel2.update({
+                                "$set": {
+                                    channelname: req.body.channelname,
+                                    announce: req.body.announce
+                                }
+                            }, function (err) {
+                                if (err) { return next(err); }
+                            });
+                            res.render("channel_edit", { title: "edit channel", err1: "修改成功" });
+                        });
+                }
+            });
+    }
+];
+
+exports.channel_detail_delete = function (req, res, next) {
+    async.parallel({
+        user: function (callback) {
+            User.findById(req.cookies.uid)
+                .exec(callback);
+        },
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                .exec(callback);
+        },
+        channel: function (callback) {
+            Channel.findById(req.params.cid)
+                .exec(callback);
+        },
+        aggregation: function (callback) {
+            Aggregation.find()
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        var isAdmin = 0;
+        for (var i = 0; i < results.user.admin.length; i++) {
+            if (results.user.admin[i] == req.params.cid) {
+                isAdmin = 1;
+                break;
+            }
+        }
+        if (isAdmin) {
+            results.group.update({
+                "$pull": {
+                    channel: results.channel._id
+                }
+            }, function (err) {
+                if (err) { return next(err); }
+                for (var i = 0; i < results.aggregation.length; i++) {
+                    results.aggregation[i].update({
+                        "$pull": {
+                            channel: results.channel._id
+                        }
+                    }, function (err) {
+                        if (err) { return next(err); }
+                    });
+                }
+                Channel.remove({ "_id": results.channel._id }, function (err) {
+                    // console.log("!!!!!!!!!");
+                    if (err) { return next(err); }
+                });
+            });
+            alertMessage("解散频道成功", res);
+        }
+        else {
+            alertMessage("你不是该频道管理员，无法解散频道", res);
+        }
+    });
+};
+
+exports.group_delete = function (req, res, next) {
+    async.parallel({
+        user: function (callback) {
+            User.findById(req.cookies.uid)
+                .exec(callback);
+        },
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                .exec(callback);
+        },
+        aggregation: function (callback) {
+            Aggregation.find()
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        var isAdmin = 0;
+        for (var i = 0; i < results.user.admin.length; i++) {
+            if (results.user.admin[i].toString() == results.group.channel[0].toString()) {
+                isAdmin = 1;
+                break;
+            }
+        }
+        if (isAdmin) {
+            // results.group.update({
+            //     "$pull": {
+            //         channel: results.channel._id
+            //     }
+            // }, function (err) {
+            //     if (err) { return next(err); }
+            //     for (var i = 0; i < results.aggregation.length; i++) {
+            //         results.aggregation[i].update({
+            //             "$pull": {
+            //                 channel: results.channel._id
+            //             }
+            //         }, function (err) {
+            //             if (err) { return next(err); }
+            //         });
+            //     }
+            //     Channel.remove({ "_id": results.channel._id }, function (err) {
+            //         // console.log("!!!!!!!!!");
+            //         if (err) { return next(err); }
+            //     });
+            // });
+            for (var i = 0; i < results.aggregation.length; i++) {
+                if (results.aggregation[i].group == req.params.gid) {
+                    console.log("gogogo");
+                    Aggregation.remove({ "group": req.params.gid }, function (err) {
+                        if (err) { return next(err); }
+                    });
+                }
+            }
+            for (var i = 0; i < results.group.channel.length; i++) {
+                Channel.remove({ "_id": results.group.channel[i].toString() }, function (err) {
+                    if (err) { return next(err); }
+                });
+            }
+            Group.remove({ "_id": req.params.gid }, function (err) {
+                if (err) { return next(err); }
+            });
+            alertMessage("解散群组成功", res);
+        }
+        else {
+            alertMessage("你不是该群群主，无法解散该群", res);
         }
     });
 };

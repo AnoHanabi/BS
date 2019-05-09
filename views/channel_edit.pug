@@ -1,0 +1,15 @@
+extends layout
+
+block content
+
+    form(method='POST' action='')
+        div.form-group
+            label(for='channelname') channelname:
+            input#channelname.form-control(type='text' name='channelname' required='true')
+        div.form-group
+            label(for='announce') announce:
+            input#announce.form-control(type='text' name='announce' required='true')
+        button.btn.btn-primary(type='submit') Submit
+
+    hr
+    p #{err1}
