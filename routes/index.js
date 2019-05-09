@@ -24,11 +24,17 @@ router.get("/group",group_controller.group_list);
 
 router.get("/group/:gid/add",group_controller.group_add);
 
+router.get("/group/:gid/quit",group_controller.group_quit);
+
 router.get("/group/:gid/channel/create",group_controller.channel_create_get);
 
 router.post("/group/:gid/channel/create",group_controller.channel_create_post);
 
 router.get("/group/:gid/channel/:cid",group_controller.channel_detail);
+
+router.get("/group/:gid/channel/:cid/add",group_controller.channel_detail_add);
+
+router.get("/group/:gid/channel/:cid/quit",group_controller.channel_detail_quit);
 
 router.get("/group/:gid/channel/:cid/chat",group_controller.channel_detail_chat);
 

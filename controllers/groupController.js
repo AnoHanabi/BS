@@ -9,7 +9,11 @@ var SocketHandler = require('./socketController');
 var Aggregation = require("../models/aggregation");
 
 function alertMessage(message, res) {
-    var alert = `<script>alert('${message}');history.back();</script>`;
+    if (message == "退出成功") {
+        var alert = `<script>alert('${message}');window.location.href='/group';</script>`;
+    } else {
+        var alert = `<script>alert('${message}');history.back();</script>`;
+    }
     res.send(alert);
 }
 function alertMessage1(message, res) {
@@ -112,6 +116,50 @@ exports.channel_detail = function (req, res, next) {
         }
     }, function (err, results) {
         if (err) { return next(err); }
+
+        // for (var i = 0; i < results.group.channel.length; i++) {
+        //     console.log(results.group.channel[i].channelname);
+        //     console.log(results.group.channel[i].user.length);
+        //     if (results.group.channel[i].user.length == 0) {
+        //         // console.log("!!!!!!!!!!!!");
+
+        //         console.log(results.group.channel[i].channelname + " delete");
+        //         results.group.update({
+        //             "$pull": {
+        //                 channel: results.group.channel[i]._id
+        //             }
+        //         }, function (err) {
+        //             if (err) { return next(err); }
+
+        //             for (var i = 0; i < results.aggregation2.length; i++) {
+        //                 results.aggregation2[i].update({
+        //                     "$pull": {
+        //                         channel: results.group.channel[i]._id
+        //                     }
+        //                 }, function (err) {
+        //                     if (err) { return next(err); }
+        //                 });
+        //             }
+
+        //             Channel.remove({ "_id": results.group.channel[i]._id }, function (err) {
+        //                 // console.log("!!!!!!!!!");
+        //                 if (err) { return next(err); }
+        //             });
+        //         });
+
+        //     }
+        // }
+
+        var user = 0;
+        for (var i = 0; i < results.channel.user.length; i++) {
+            if (results.channel.user[i]._id == req.cookies.uid) {
+                user = 1;
+                break;
+            }
+        }
+        if (user == 0) {
+            alertMessage("你不是该频道成员，请先add", res);
+        }
         res.render('channel_detail', { title: 'Channel Detail', isRss: results.channel.channelname.indexOf("RSS-"), my_id: req.cookies.uid, msg: results.msg, group: results.group, channel: results.channel, aggregation: results.aggregation });
     });
 };
@@ -324,7 +372,7 @@ exports.group_add = function (req, res, next) {
         user: function (callback) {
             User.findById(req.cookies.uid)
                 .exec(callback);
-        },
+        }
     }, function (err, results) {
         if (err) { return next(err); }
         var found_user = 0;
@@ -357,6 +405,159 @@ exports.group_add = function (req, res, next) {
     });
 };
 
+exports.group_quit = function (req, res, next) {
+    async.parallel({
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                .populate("user")
+                .populate("channel")
+                .exec(callback);
+        },
+        user: function (callback) {
+            User.findById(req.cookies.uid)
+                .exec(callback);
+        }
+    }, function (err, results) {
+        if (err) { return next(err); }
+        var found_user = 0;
+        for (var i = 0; i < results.group.user.length; i++) {
+            if (results.group.user[i].username == results.user.username) {
+                found_user = 1;
+                break;
+            }
+        }
+        if (found_user == 0) {
+            alertMessage("你不是该群成员，无法退出", res);
+        }
+        else {
+            for (var i = 0; i < results.group.channel.length; i++) {
+                results.group.channel[i].update({
+                    "$pull": {
+                        user: results.user._id
+                    }
+                }, function (err) {
+                    if (err) { return next(err); };
+                });
+            }
+            results.group.update({
+                '$pull': {
+                    user: results.user._id
+                }
+            }, function (err) {
+                if (err) { return next(err); }
+                alertMessage("退出成功", res);
+            });
+        }
+    });
+};
+
+exports.channel_detail_add = function (req, res, next) {
+    async.parallel({
+        channel: function (callback) {
+            Channel.findById(req.params.cid)
+                .populate("user")
+                .exec(callback);
+        },
+        user: function (callback) {
+            User.findById(req.cookies.uid)
+                .exec(callback);
+        },
+    }, function (err, results) {
+        if (err) { return next(err); }
+        var found_user = 0;
+        for (var i = 0; i < results.channel.user.length; i++) {
+            if (results.channel.user[i].username == results.user.username) {
+                found_user = 1;
+                break;
+            }
+        }
+        if (found_user) {
+            alertMessage("你已经是该频道成员了", res);
+        }
+        else {
+            results.channel.update({
+                '$push': {
+                    user: results.user._id
+                }
+            }, function (err) {
+                if (err) { return next(err); }
+                alertMessage("加入成功", res);
+            });
+        }
+    });
+};
+
+exports.channel_detail_quit = function (req, res, next) {
+    async.parallel({
+        channel: function (callback) {
+            Channel.findById(req.params.cid)
+                .populate("user")
+                .exec(callback);
+        },
+        user: function (callback) {
+            User.findById(req.cookies.uid)
+                .exec(callback);
+        },
+        group: function (callback) {
+            Group.findById(req.params.gid)
+                .exec(callback);
+        },
+        aggregation: function (callback) {
+            Aggregation.find({ "group": req.params.gid })
+                .exec(callback);
+        }
+    }, function (err, results) {
+        // console.log("!!!!!!!!!!!!");
+        // console.log(results.aggregation);
+        // console.log("!!!!!!!!!!!!");
+        if (err) { return next(err); }
+        var found_user = 0;
+        for (var i = 0; i < results.channel.user.length; i++) {
+            if (results.channel.user[i].username == results.user.username) {
+                found_user = 1;
+                break;
+            }
+        }
+        if (found_user == 0) {
+            alertMessage("你不是该频道成员，无法退出", res);
+        }
+        else {
+            // console.log(results.channel.user.length);
+            results.channel.update({
+                '$pull': {
+                    user: results.user._id
+                }
+            }, function (err) {
+                if (err) { return next(err); }
+                // console.log(results.channel.user.length);
+                if (results.channel.user.length == 1) {
+                    // console.log("!!!!!!!!!!!!");
+                    results.group.update({
+                        "$pull": {
+                            channel: results.channel._id
+                        }
+                    }, function (err) {
+                        if (err) { return next(err); }
+                        for (var i = 0; i < results.aggregation.length; i++) {
+                            results.aggregation[i].update({
+                                "$pull": {
+                                    channel: results.channel._id
+                                }
+                            }, function (err) {
+                                if (err) { return next(err); }
+                            });
+                        }
+                        Channel.remove({ "_id": results.channel._id }, function (err) {
+                            // console.log("!!!!!!!!!");
+                            if (err) { return next(err); }
+                        });
+                    });
+                }
+                alertMessage("退出成功", res);
+            });
+        }
+    });
+};
 
 exports.aggregation_setting_get = function (req, res, next) {
     async.parallel({

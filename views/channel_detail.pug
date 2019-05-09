@@ -42,6 +42,12 @@ html
                     p channel:
                         each channel,index in group.channel
                             a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
+                            |
+                            if channel.channelname!="Default"
+                                |(
+                                a(href="/group/"+group._id+"/channel/"+channel._id+"/add") add)
+                                |(
+                                a(href="/group/"+group._id+"/channel/"+channel._id+"/quit") quit)
                             if index<group.channel.length
                                 |&nbsp;/&nbsp;
                         if(aggregation)

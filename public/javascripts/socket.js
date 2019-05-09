@@ -63,9 +63,7 @@ socket.on('msg', (obj) => {
     var link = "/group/" + gid + "/channel/" + cid;
     var ans = link + " #msg";
     $("#msgDiv").load(ans);
-    // scroll();
-    
-    location.reload();
+    scroll();
 });
 
 socket.on('msg2', (obj) => {
