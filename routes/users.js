@@ -11,6 +11,10 @@ router.get("/msg", user_controller.user_msg);
 
 router.get("/logout",user_controller.user_logout);
 
+router.get("/changepassword",user_controller.user_changepassword_get);
+
+router.post("/changepassword",user_controller.user_changepassword_post);
+
 router.get("/:uid",user_controller.user_chat);
 
 module.exports = router;
