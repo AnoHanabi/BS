@@ -150,64 +150,74 @@ io.on('connection', async (socket) => {
   // setInterval(function () { }, 3000);
 
 });
-
+var channel = [];
 setInterval(function () {
+
   Channel.find()
     .populate("msg")
     .exec(function (err, allChannel) {
       if (err) { return next(err); }
       for (var i = 0; i < allChannel.length; i++) {
         if (allChannel[i].channelname.indexOf("RSS-") > -1) {
-          // console.log(allChannel[i].channelname);
-          // console.log(allChannel.length);
-          // console.log(allChannel[i].msg.length);
-          var msgArr = allChannel[i].msg;
-          var channel = allChannel[i];
-
-          request(allChannel[i].announce)
-            .on('error', function (error) {
-              console.error(error);
-            })
-            .pipe(new FeedParser())
-            .on('error', function (error) {
-              console.error(error);
-            })
-            .on('meta', function (meta) {
-              console.log('===== %s =====', meta.title);
-            })
-            .on('readable', function () {
-              var stream = this, item;
-              while (item = stream.read()) {
-                // console.log('Got article: %s', item.title);
-                var content = " <a href='" + item.link + "'>" + item.title + "</a>";
-                var skip = 0;
-                for (var j = msgArr.length - 1; j >= 0; j--) {
-                  // console.log(msgArr[j].content);
-                  if (msgArr[j].content == content) {
-                    // console.log(msgArr[j].content);
-                    // console.log(j);
-                    skip = 1;
-                    // console.log(skip);
-                    break;
-                  }
-                }
-                if (!skip) {
-                  // console.log(content);
-                  // console.log(channel.channelname);
-                  // console.log(channel._id);
-                  var obj = {
-                    content: content,
-                    type: channel.channelname,
-                    cid: channel._id
-                  };
-                  socketHandler.storeMsg(obj);
-                  io.to(channel._id).emit("msg", obj);
-                }
-              }
-            });
+          channel.push(allChannel[i]._id);
         }
       }
-    })
+    });
+  console.log(channel);
+  for (var i = 0; i < channel.length; i++) {
+    Channel.findById(channel[i])
+      .populate("msg")
+      .exec(function (err, found_channel) {
+        if (err) { return next(err); }
+        // var msgArr = found_channel.msg;
+
+        request(found_channel.announce)
+          .on('error', function (error) {
+            console.error(error);
+          })
+          .pipe(new FeedParser())
+          .on('error', function (error) {
+            console.error(error);
+          })
+          .on('meta', function (meta) {
+            console.log('===== %s =====', meta.title);
+          })
+          .on('readable', function () {
+            var stream = this, item;
+            while (item = stream.read()) {
+              // console.log('Got article: %s', item.title);
+              var content = " <a href='" + item.link + "'>" + item.title + "</a>";
+              var skip = 0;
+              for (var j = found_channel.msg.length - 1; j >= 0; j--) {
+                // console.log(msgArr[j].content);
+                if (found_channel.msg[j].content == content) {
+                  // console.log(msgArr[j].content);
+                  // console.log(j);
+                  skip = 1;
+                  // console.log(skip);
+                  break;
+                }
+              }
+              if (!skip) {
+                // console.log(content);
+                // console.log(channel.channelname);
+                // console.log(channel._id);
+                var obj = {
+                  content: content,
+                  type: found_channel.channelname,
+                  cid: found_channel._id
+                };
+                socketHandler.storeMsg(obj);
+                console.log('storeMsg');
+                io.to(found_channel._id).emit("msg", obj);
+                console.log('emit');
+              }
+            }
+          });
+
+      })
+  }
+  channel.length = 0;
 }, 1000000);
 
 http.listen(3001, function () {
