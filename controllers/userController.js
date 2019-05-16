@@ -87,7 +87,6 @@ exports.user_logout = function (req, res, next) {
 };
 
 exports.user_chat = function (req, res, next) {
-
     async.parallel({
         msg: function (callback) {
             Msg.find(callback)
@@ -99,7 +98,6 @@ exports.user_chat = function (req, res, next) {
         }
     }, function (err, results) {
         if (err) { return next(err); }
-
         res.render('user_chat', { title: 'User Chat', my_id: req.cookies.uid, msg: results.msg, user: results.user });
     });
 }

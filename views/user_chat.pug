@@ -31,9 +31,9 @@ html
                     div#msgDiv
                         ul#msg
                             each one in msg
-                                if one.user._id == my_id && one.to == user._id
+                                if one.user && one.user._id == my_id && one.to == user._id
                                     li #{one.user.username} (#{one.time.getMonth()+1}-#{one.time.getDate()} #{one.time.getHours()}:#{one.time.getMinutes()}) : #{one.content}
-                                else if one.user.idStr == user.idStr && one.to == my_id
+                                else if one.user && one.user.idStr == user.idStr && one.to == my_id
                                     li #{one.user.username} (#{one.time.getMonth()+1}-#{one.time.getDate()} #{one.time.getHours()}:#{one.time.getMinutes()}) : #{one.content}
                     div#d1
                         input#m(type='text' autocomplete="off" required='true')
@@ -42,5 +42,8 @@ html
                 div(Class="col-md-2")
                     p Chatting with:
                     p #{user.username}
+                    hr
+                    //- one.user._id == my_id &&
+                    //- one.user.idStr == user.idStr &&
 
     script(src="/javascripts/socket_private.js")
