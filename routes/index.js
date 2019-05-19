@@ -5,7 +5,7 @@ var group_controller=require("../controllers/groupController");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'BS' });
+  res.render('index', { title: '可选择信息流的多频道WEB聊天系统' });
 });
 
 router.get("/login",user_controller.user_login_get);

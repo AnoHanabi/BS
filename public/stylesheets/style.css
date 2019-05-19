@@ -28,8 +28,12 @@ div#d1 {
   width: 60%;
 }
 
-div#d1 input {
-  width: 90%;
+div#d1 input#m {
+  width: 80%;
+}
+
+div#d1 input#c1, span#c2 {
+  width: 5%;
 }
 
 div#d1 button {

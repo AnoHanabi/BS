@@ -29,6 +29,7 @@ html
                                 a(href="/group") All group
                     
                 div(class='col-md-8')
+                    a(href="/users/"+user._id) 返回私聊
                     div#msgDiv
                         ul#msg
                             each one in msg
@@ -36,25 +37,6 @@ html
                                     li #{one.user.username} (#{one.time.getMonth()+1}-#{one.time.getDate()} #{one.time.getHours()}:#{one.time.getMinutes()}) : !{one.content}
                                 else if one.user && one.user.idStr == user.idStr && one.to == my_id
                                     li #{one.user.username} (#{one.time.getMonth()+1}-#{one.time.getDate()} #{one.time.getHours()}:#{one.time.getMinutes()}) : !{one.content}
-                    div
-                        input#emoji(type="button" value="emoji")
-                        div#emojiWrapper
-                        label#imageLable(for="sendImage")
-                            input#sendImage(type="file" value="image")
-                        button#recOpen(type="button") Open Rec
-                        button(onclick="startRecording(this)") record
-                        button#rec(onclick="stopRecording(this)" disabled) stop
-                        span#log
-                    div#d1
-                        input#m(autofocus="autofocus" type='text' autocomplete="off" required='true')
-                        button#bt.btn.btn-primary(type="button") send
-
-                div(Class="col-md-2")
-                    p Chatting with:
-                    p #{user.username}
-                    hr
-                    a(href="/users/"+user._id+"/chat") 聊天记录
-                    //- one.user._id == my_id &&
-                    //- one.user.idStr == user.idStr &&
+                    input#date(type="date" onchange="changeDate()")
 
     script(src="/javascripts/socket_private.js")

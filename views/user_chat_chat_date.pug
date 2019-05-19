@@ -1,0 +1,11 @@
+extends layout
+
+block content
+    div#msgDiv
+        ul#msg
+            each one in msg
+                if one.time.getYear()+1900==yearNum && one.time.getMonth()+1==monthNum && one.time.getDate()==dayNum
+                    if one.user && one.user._id == my_id && one.to == user._id
+                        li #{one.user.username} (#{one.time.getMonth()+1}-#{one.time.getDate()} #{one.time.getHours()}:#{one.time.getMinutes()}) : !{one.content}
+                    else if one.user && one.user.idStr == user.idStr && one.to == my_id
+                        li #{one.user.username} (#{one.time.getMonth()+1}-#{one.time.getDate()} #{one.time.getHours()}:#{one.time.getMinutes()}) : !{one.content}

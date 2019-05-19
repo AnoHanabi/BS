@@ -75,7 +75,7 @@ html
                     //-     input#m.form-control(type='text' autocomplete="off" required='true')
                     //-     button.btn.btn-primary(type="button") send
                     if isRss == -1
-                        div#isRss
+                        div
                             input#emoji(type="button" value="emoji")
                             div#emojiWrapper
                             label#imageLable(for="sendImage")
@@ -92,6 +92,8 @@ html
                             div#d1
                                 input#m(autofocus="autofocus" type='text' autocomplete="off" required='true')
                                 button#bt.btn.btn-primary(type="button") send
+                                input#c1(type="checkbox")
+                                span#c2 NSFW
 
                 div(Class="col-md-2")
                     p Announce:
@@ -108,5 +110,8 @@ html
                     if isRss == -1
                         a(href="/group/"+group._id+"/channel/"+channel._id+"/chat") 聊天记录
                     hr
-
+                    ul
+                        li
+                            button(type="button" onclick="change(this)") 查看
+                            div(style="display:none") 111
     script(src="/javascripts/socket.js")

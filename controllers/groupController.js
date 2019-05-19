@@ -32,7 +32,12 @@ exports.group_create_get = function (req, res, next) {
         }
     }, function (err, results) {
         if (err) { return next(err); }
-        res.render("group_create", { title: "create group", groups: results.groups, channels: results.channels, err1: "" });
+        if (req.cookies.uid) {
+            res.render("group_create", { title: "create group", groups: results.groups, channels: results.channels, err1: "" });
+        }
+        else {
+            alertMessage("请先登录！", res);
+        }
     });
 };
 
@@ -82,7 +87,12 @@ exports.group_list = function (req, res, next) {
             if (err) {
                 return next(err);
             }
-            res.render("group_list", { tilte: "Group list", group_list: list_group });
+            if (req.cookies.uid) {
+                res.render("group_list", { tilte: "Group list", group_list: list_group });
+            }
+            else {
+                alertMessage("请先登录！", res);
+            }
         });
 };
 

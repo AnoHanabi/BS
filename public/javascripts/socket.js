@@ -41,6 +41,9 @@ function Send() {
     var len = arr.length;
     var cid = arr[len - 1];
     msg = _showEmoji(msg);
+    if (document.getElementById("c1").checked == true) {
+        msg = "<button onclick='change(this)'>查看</button><div style='display:none'>" + msg + "</div>";
+    }
     var data = {
         content: msg,
         uid: uid,
@@ -72,7 +75,7 @@ socket.on('msg2', (obj) => {
     var arr = url.split("/");
     var len = arr.length;
     var ans;
-    if (arr[len - 2] != "aggregation"){
+    if (arr[len - 2] != "aggregation") {
         return;
     }
     if (arr[len - 2] == "aggregation") {
@@ -97,11 +100,13 @@ document.getElementById('sendImage').addEventListener('change', function () {
             var arr = url.split("/");
             var len = arr.length;
             var cid = arr[len - 1];
+
             var data = {
                 // content: "<img src='" + e.target.result + "'>",
                 content: e.target.result,
                 uid: uid,
                 cid: cid,
+                checked: document.getElementById("c1").checked,
                 type: "img"
             };
             socket.emit("msg", data);
@@ -116,6 +121,17 @@ document.getElementById('sendImage').addEventListener('change', function () {
 document.querySelector("#bt").addEventListener("click", () => {
     Send();
 });
+
+function change(button) {
+    if (button.innerHTML == "查看") {
+        button.innerHTML = "隐藏";
+        button.nextElementSibling.style.display = "inline";
+    }
+    else if (button.innerHTML == "隐藏") {
+        button.innerHTML = "查看";
+        button.nextElementSibling.style.display = "none";
+    }
+}
 
 
 function scroll() {
@@ -232,6 +248,7 @@ function createDownloadLink() {
                 content: e.target.result,
                 uid: uid,
                 cid: cid,
+                checked: document.getElementById("c1").checked,
                 type: "audio"
             };
             socket.emit("msg", data);

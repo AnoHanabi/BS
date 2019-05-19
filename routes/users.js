@@ -17,4 +17,8 @@ router.post("/changepassword",user_controller.user_changepassword_post);
 
 router.get("/:uid",user_controller.user_chat);
 
+router.get("/:uid/chat",user_controller.user_chat_chat);
+
+router.get("/:uid/chat/:date",user_controller.user_chat_chat_date);
+
 module.exports = router;

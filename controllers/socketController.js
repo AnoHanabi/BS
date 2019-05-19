@@ -116,6 +116,10 @@ class SocketHandler {
                 var optionalObj = {};
                 var imageInfo = base64ToImage(base64Str, path, optionalObj);
                 var imgUrl = "<img src='/images/image/" + imageInfo.fileName + "'>";
+                console.log(data);
+                if (data.checked == true) {
+                    imgUrl = "<button onclick='change(this)'>查看</button><div style='display:none'>" + imgUrl + "</div>";
+                }
                 var newMsg = new Msg({
                     content: imgUrl,
                     user: data.uid,
@@ -132,6 +136,9 @@ class SocketHandler {
                     var optionalObj = {};
                     var audioInfo = base64ToAudio(base64Str, path, optionalObj);
                     var audioUrl = "<audio controls src='/audio/" + audioInfo.fileName + "'/>";
+                    if (data.checked == true) {
+                        audioUrl = "<button onclick='change(this)'>查看</button><div style='display:none'>" + audioUrl + "</div>";
+                    }
                     var newMsg = new Msg({
                         content: audioUrl,
                         user: data.uid,

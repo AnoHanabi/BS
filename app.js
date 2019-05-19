@@ -99,6 +99,7 @@ io.on('connection', async (socket) => {
         });
     }
 
+    
     var index = roomInfo[roomID].indexOf(user);
 
     if (index != -1) {
