@@ -73,3 +73,7 @@ ul#msg li:nth-child(odd) {
 #emojiWrapper img:hover {
   background-color: blue;
 }
+
+#aggregation {
+  display: none;
+}

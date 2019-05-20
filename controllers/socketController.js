@@ -104,11 +104,22 @@ class SocketHandler {
     storeMsg(data) {
         if (!data.uid) {
             var newMsg = new Msg({
-                content: data.content,
+                content: data.content + "<span id='aggregation'>（来自 " + data.type + " 频道）</span>",
                 type: data.type
             });
         }
         else {
+
+            // var channelname;
+            // if (data.cid) {
+            //     Channel.findById(data.cid)
+            //         .exec(function (err, found_channel) {
+            //             if (err) { return next(err); }
+            //             console.log(found_channel);
+            //             channelname = found_channel.channelname;
+
+            //         });
+            // }
 
             if (data.type == "img") {
                 var base64Str = data.content;
@@ -121,34 +132,28 @@ class SocketHandler {
                     imgUrl = "<button onclick='change(this)'>查看</button><div style='display:none'>" + imgUrl + "</div>";
                 }
                 var newMsg = new Msg({
-                    content: imgUrl,
+                    content: imgUrl + "<span id='aggregation'>（来自 " + data.channelname + " 频道）</span>",
                     user: data.uid,
                     to: data.to,
                     type: data.type
                 });
-            }
-            else {
-
-
+            } else {
                 if (data.type == "audio") {
                     var base64Str = data.content;
                     var path = '/gitgui/BS/public/audio/';
                     var optionalObj = {};
                     var audioInfo = base64ToAudio(base64Str, path, optionalObj);
-                    var audioUrl = "<audio controls src='/audio/" + audioInfo.fileName + "'/>";
+                    var audioUrl = "<audio controls src='/audio/" + audioInfo.fileName + "'></audio>";
                     if (data.checked == true) {
                         audioUrl = "<button onclick='change(this)'>查看</button><div style='display:none'>" + audioUrl + "</div>";
                     }
                     var newMsg = new Msg({
-                        content: audioUrl,
+                        content: audioUrl + "<span id='aggregation'>（来自 " + data.channelname + " 频道）</span>",
                         user: data.uid,
                         to: data.to,
                         type: data.type
                     });
-                }
-
-
-                else if (data.to) {
+                } else if (data.to) {
                     var newMsg = new Msg({
                         content: data.content,
                         user: data.uid,
@@ -158,7 +163,7 @@ class SocketHandler {
                 } else {
 
                     var newMsg = new Msg({
-                        content: data.content,
+                        content: data.content + "<span id='aggregation'>（来自 " + data.channelname + " 频道）</span>",
                         user: data.uid,
                         type: data.type
                     });

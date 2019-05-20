@@ -99,7 +99,7 @@ io.on('connection', async (socket) => {
         });
     }
 
-    
+
     var index = roomInfo[roomID].indexOf(user);
 
     if (index != -1) {
@@ -139,12 +139,21 @@ io.on('connection', async (socket) => {
       // }
 
       console.log("socket.on");
-      socketHandler.storeMsg(obj);
-      console.log("storeMsg");
-      io.to(roomID).emit("msg2", obj);
-      io.to(roomID).emit("msg", obj);
-      // io.to("5cd2e7a6a35438719b5b41d8").emit("msg", obj);
-      console.log("io.emit");
+
+      if (obj.cid) {
+        Channel.findById(obj.cid)
+          .exec(function (err, found_channel) {
+            if (err) { return next(err); }
+            obj.channelname = found_channel.channelname;
+            socketHandler.storeMsg(obj);
+            console.log("storeMsg");
+            io.to(roomID).emit("msg2", obj);
+            io.to(roomID).emit("msg", obj);
+            // io.to("5cd2e7a6a35438719b5b41d8").emit("msg", obj);
+            console.log("io.emit");
+          });
+      }
+
     });
   }
 

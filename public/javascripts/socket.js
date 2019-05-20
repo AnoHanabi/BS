@@ -16,6 +16,15 @@ socket.on('connect', function () {
 
 $(document).ready(function () {
     scroll();
+    var url = window.location.href;
+    var arr = url.split("/");
+    var len = arr.length;
+    var str = arr[len - 2];
+    if (str == "aggregation") {
+        for (var i = 0; i < document.querySelectorAll("#aggregation").length; i++) {
+            document.querySelectorAll("#aggregation")[i].style.display = 'inline';
+        }
+    }
 });
 
 
@@ -41,6 +50,10 @@ function Send() {
     var len = arr.length;
     var cid = arr[len - 1];
     msg = _showEmoji(msg);
+    if (!msg.trim()) {
+        alert("请填写信息后再发送！");
+        return;
+    }
     if (document.getElementById("c1").checked == true) {
         msg = "<button onclick='change(this)'>查看</button><div style='display:none'>" + msg + "</div>";
     }
