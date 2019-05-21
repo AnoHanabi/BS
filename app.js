@@ -158,7 +158,6 @@ io.on('connection', async (socket) => {
   }
 
   // setInterval(function () { }, 3000);
-
 });
 var channel = [];
 setInterval(function () {
@@ -200,7 +199,7 @@ setInterval(function () {
               var skip = 0;
               for (var j = found_channel.msg.length - 1; j >= 0; j--) {
                 // console.log(msgArr[j].content);
-                if (found_channel.msg[j].content == content) {
+                if (found_channel.msg[j].content == content + "<span id='aggregation'>（来自 " + found_channel.channelname + " 频道）</span>") {
                   // console.log(msgArr[j].content);
                   // console.log(j);
                   skip = 1;

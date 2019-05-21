@@ -159,7 +159,6 @@ exports.channel_detail = function (req, res, next) {
 
         //     }
         // }
-
         var user = 0;
         for (var i = 0; i < results.channel.user.length; i++) {
             if (results.channel.user[i]._id == req.cookies.uid) {
@@ -301,7 +300,8 @@ exports.channel_create_post = [
                             }
                         }, function (err) {
                             if (err) { return next(err); }
-                            res.render("channel_create", { title: "create channel", err1: "频道创建成功" });
+                            res.render("channel_create", { title: "create channel", err1: "<a href='/group/" + req.params.gid + "/channel/" + channel._id + "'>频道创建成功 点击进入</a>" });
+
                         });
                     });
                 }
@@ -378,7 +378,7 @@ exports.rss_create_post = [
                                     }
                                 });
 
-                            res.render("rss_create", { title: "create rss", err1: "RSS频道创建成功" });
+                            res.render("rss_create", { title: "create rss", err1: "<a href='/group/" + req.params.gid + "/channel/" + channel._id + "'>RSS频道创建成功 点击进入</a>" });
                         });
                     });
                 }
@@ -484,6 +484,10 @@ exports.channel_detail_edit_get = function (req, res, next) {
         user: function (callback) {
             User.findById(req.cookies.uid)
                 .exec(callback);
+        },
+        channel: function (callback) {
+            Channel.findById(req.params.cid)
+                .exec(callback);
         }
     }, function (err, results) {
         if (err) { return next(err); }
@@ -495,7 +499,15 @@ exports.channel_detail_edit_get = function (req, res, next) {
             }
         }
         if (isAdmin) {
-            res.render("channel_edit", { title: "edit channel", err1: "" });
+            if (results.channel.channelname == "Default") {
+                res.render("channel_edit", { title: "edit channel", err1: "", channelname: "false", announce: "" });
+            }
+            else if (results.channel.channelname.indexOf("RSS-") > -1) {
+                res.render("channel_edit", { title: "edit channel", err1: "", channelname: "", announce: "false" });
+            }
+            else {
+                res.render("channel_edit", { title: "edit channel", err1: "", channelname: "", announce: "" });
+            }
         }
         else {
             alertMessage("你不是该频道管理员，无法修改频道信息", res);
@@ -681,23 +693,36 @@ exports.group_quit = function (req, res, next) {
             alertMessage("你不是该群成员，无法退出", res);
         }
         else {
-            for (var i = 0; i < results.group.channel.length; i++) {
-                results.group.channel[i].update({
-                    "$pull": {
+
+            var isAdmin = 0;
+            for (var i = 0; i < results.user.admin.length; i++) {
+                if (results.user.admin[i].toString() == results.group.channel[0]._id.toString()) {
+                    isAdmin = 1;
+                    break;
+                }
+            }
+            if (isAdmin) {
+                alertMessage("你是该群群主，无法退出", res);
+            }
+            else {
+                for (var i = 0; i < results.group.channel.length; i++) {
+                    results.group.channel[i].update({
+                        "$pull": {
+                            user: results.user._id
+                        }
+                    }, function (err) {
+                        if (err) { return next(err); };
+                    });
+                }
+                results.group.update({
+                    '$pull': {
                         user: results.user._id
                     }
                 }, function (err) {
-                    if (err) { return next(err); };
+                    if (err) { return next(err); }
+                    alertMessage("退出成功", res);
                 });
             }
-            results.group.update({
-                '$pull': {
-                    user: results.user._id
-                }
-            }, function (err) {
-                if (err) { return next(err); }
-                alertMessage("退出成功", res);
-            });
         }
     });
 };
