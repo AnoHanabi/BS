@@ -32,33 +32,33 @@ html
                                 a(href="/group") All group
                     
                 div(class='col-md-8')
-                    span group:#{group.groupname} 
+                    span 群组名:#{group.groupname} 
                     |
-                    a(href="/group/"+group._id+"/channel/create") Create channel
+                    a(href="/group/"+group._id+"/channel/create") 创建频道
                     |&nbsp;/&nbsp;
-                    a(href="/group/"+group._id+"/rss/create") Create RSS
+                    a(href="/group/"+group._id+"/rss/create") 创建简易信息聚合
                     |&nbsp;/&nbsp;
-                    a(href="/group/"+group._id+"/aggregation/setting") Aggregation Setting
-                    p channel:
+                    a(href="/group/"+group._id+"/aggregation/setting") 聚合设置
+                    p 频道:
                         each channel,index in group.channel
                             a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
                             |
                             if channel.channelname!="Default"
                                 |(
-                                a(href="/group/"+group._id+"/channel/"+channel._id+"/add") add)
+                                a(href="/group/"+group._id+"/channel/"+channel._id+"/add") 加入)
                             |(
-                            a(href="/group/"+group._id+"/channel/"+channel._id+"/edit") edit)
+                            a(href="/group/"+group._id+"/channel/"+channel._id+"/edit") 修改)
                             |
                             if channel.channelname!="Default"
                                 |(
-                                a(href="/group/"+group._id+"/channel/"+channel._id+"/quit") quit)
+                                a(href="/group/"+group._id+"/channel/"+channel._id+"/quit") 退出)
                                 |(
-                                a(href="/group/"+group._id+"/channel/"+channel._id+"/delete") delete)
+                                a(href="/group/"+group._id+"/channel/"+channel._id+"/delete") 删除)
 
                             if index<group.channel.length
                                 |&nbsp;/&nbsp;
                         if(aggregation)
-                            a(href="/group/"+group._id+"/aggregation/"+aggregation._id) My Aggregation
+                            a(href="/group/"+group._id+"/aggregation/"+aggregation._id) 我的聚合频道
                     div#msgDiv
                         ul#msg
                             each msg in channel.msg
@@ -76,7 +76,7 @@ html
                     //-     button.btn.btn-primary(type="button") send
                     if isRss == -1
                         div
-                            input#emoji(type="button" value="emoji")
+                            input#emoji(type="button" value="发送表情")
                             div#emojiWrapper
                             label#imageLable(for="sendImage")
                                 //- input(type="button" value="image")
@@ -85,21 +85,21 @@ html
                             //- button(onclick="recstart()") 录音
                             //- button(onclick="recstop()") 停止
                             //- audio.recPlay(style="width:100%"
-                            button#recOpen(type="button") Open Rec
-                            button(onclick="startRecording(this)") record
-                            button#rec(onclick="stopRecording(this)" disabled) stop
+                            button#recOpen(type="button") 打开录音
+                            button(onclick="startRecording(this)") 开始录音
+                            button#rec(onclick="stopRecording(this)" disabled) 停止录音
                             span#log
                             div#d1
                                 input#m(autofocus="autofocus" type='text' autocomplete="off" required='true')
-                                button#bt.btn.btn-primary(type="button") send
+                                button#bt.btn.btn-primary(type="button") 发送
                                 input#c1(type="checkbox")
-                                span#c2 NSFW
+                                span#c2 隐藏消息
 
                 div(Class="col-md-2")
-                    p Announce:
+                    p 频道公告:
                     p #{channel.announce}
                     hr
-                    p User:
+                    p 频道用户:
                     each user in channel.user
                         p
                             if user._id != my_id

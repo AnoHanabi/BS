@@ -156,7 +156,7 @@ function scroll() {
 function _initialEmoji() {
     var emojiContainer = document.getElementById('emojiWrapper'),
         docFragment = document.createDocumentFragment();
-    for (var i = 1; i <= 2; i++) {
+    for (var i = 1; i <= 10; i++) {
         var emojiItem = document.createElement('img');
         emojiItem.src = '/images/emoji/' + i + '.gif';
         emojiItem.title = i;

@@ -787,50 +787,63 @@ exports.channel_detail_quit = function (req, res, next) {
         // console.log(results.aggregation);
         // console.log("!!!!!!!!!!!!");
         if (err) { return next(err); }
-        var found_user = 0;
-        for (var i = 0; i < results.channel.user.length; i++) {
-            if (results.channel.user[i].username == results.user.username) {
-                found_user = 1;
+
+        var isAdmin = 0;
+        for (var i = 0; i < results.user.admin.length; i++) {
+            if (results.user.admin[i].toString() == results.channel._id.toString()) {
+                isAdmin = 1;
                 break;
             }
         }
-        if (found_user == 0) {
-            alertMessage("你不是该频道成员，无法退出", res);
+        if (isAdmin) {
+            alertMessage("你是该频道管理员，无法退出", res);
         }
         else {
-            // console.log(results.channel.user.length);
-            results.channel.update({
-                '$pull': {
-                    user: results.user._id
+            var found_user = 0;
+            for (var i = 0; i < results.channel.user.length; i++) {
+                if (results.channel.user[i].username == results.user.username) {
+                    found_user = 1;
+                    break;
                 }
-            }, function (err) {
-                if (err) { return next(err); }
+            }
+            if (found_user == 0) {
+                alertMessage("你不是该频道成员，无法退出", res);
+            }
+            else {
                 // console.log(results.channel.user.length);
-                if (results.channel.user.length == 1) {
-                    // console.log("!!!!!!!!!!!!");
-                    results.group.update({
-                        "$pull": {
-                            channel: results.channel._id
-                        }
-                    }, function (err) {
-                        if (err) { return next(err); }
-                        for (var i = 0; i < results.aggregation.length; i++) {
-                            results.aggregation[i].update({
-                                "$pull": {
-                                    channel: results.channel._id
-                                }
-                            }, function (err) {
+                results.channel.update({
+                    '$pull': {
+                        user: results.user._id
+                    }
+                }, function (err) {
+                    if (err) { return next(err); }
+                    // console.log(results.channel.user.length);
+                    if (results.channel.user.length == 1) {
+                        // console.log("!!!!!!!!!!!!");
+                        results.group.update({
+                            "$pull": {
+                                channel: results.channel._id
+                            }
+                        }, function (err) {
+                            if (err) { return next(err); }
+                            for (var i = 0; i < results.aggregation.length; i++) {
+                                results.aggregation[i].update({
+                                    "$pull": {
+                                        channel: results.channel._id
+                                    }
+                                }, function (err) {
+                                    if (err) { return next(err); }
+                                });
+                            }
+                            Channel.remove({ "_id": results.channel._id }, function (err) {
+                                // console.log("!!!!!!!!!");
                                 if (err) { return next(err); }
                             });
-                        }
-                        Channel.remove({ "_id": results.channel._id }, function (err) {
-                            // console.log("!!!!!!!!!");
-                            if (err) { return next(err); }
                         });
-                    });
-                }
-                alertMessage("退出成功", res);
-            });
+                    }
+                    alertMessage("退出成功", res);
+                });
+            }
         }
     });
 };

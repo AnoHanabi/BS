@@ -29,11 +29,11 @@ div#d1 {
 }
 
 div#d1 input#m {
-  width: 80%;
+  width: 75%;
 }
 
 div#d1 input#c1, span#c2 {
-  width: 5%;
+  width: 7.5%;
 }
 
 div#d1 button {
