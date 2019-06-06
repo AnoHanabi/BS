@@ -4,12 +4,12 @@ block content
 
     form(method='POST' action='')
         div.form-group
-            label(for='rssname') RSSname:
+            label(for='rssname') 简易信息聚合名字:
             input#rssname.form-control(type='text' name='rssname' required='true')
         div.form-group
-            label(for='link') link:
+            label(for='link') 简易信息聚合链接:
             input#link.form-control(type='text' name='link' required='true')  
-        button.btn.btn-primary(type='submit') Submit
+        button.btn.btn-primary(type='submit') 提交
 
     hr
     p !{err1}

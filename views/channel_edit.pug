@@ -5,13 +5,13 @@ block content
     form(method='POST' action='')
         if channelname != "false"
             div.form-group
-                label(for='channelname') channelname:
+                label(for='channelname') 频道名字:
                 input#channelname.form-control(type='text' name='channelname' required='true')
         if announce != "false"        
             div.form-group
-                label(for='announce') announce:
+                label(for='announce') 频道公告:
                 input#announce.form-control(type='text' name='announce' required='true')
-        button.btn.btn-primary(type='submit') Submit
+        button.btn.btn-primary(type='submit') 提交
 
     hr
     p #{err1}

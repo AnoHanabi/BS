@@ -169,7 +169,7 @@ exports.channel_detail = function (req, res, next) {
         if (user == 0) {
             alertMessage("你不是该频道成员，请先add", res);
         }
-        res.render('channel_detail', { title: 'Channel Detail', isRss: results.channel.channelname.indexOf("RSS-"), my_id: req.cookies.uid, msg: results.msg, group: results.group, channel: results.channel, aggregation: results.aggregation });
+        res.render('channel_detail', { title: 'Channel Detail', cid: req.params.cid, isRss: results.channel.channelname.indexOf("RSS-"), my_id: req.cookies.uid, msg: results.msg, group: results.group, channel: results.channel, aggregation: results.aggregation });
     });
 };
 
@@ -517,30 +517,72 @@ exports.channel_detail_edit_get = function (req, res, next) {
 
 exports.channel_detail_edit_post = [
     (req, res, next) => {
-        Channel.findOne({ "channelname": req.body.channelname })
-            .exec(function (err, found_channel) {
-                if (err) { return next(err) }
-                // console.log(found_channel._id);
-                // console.log(req.params.cid);
-                if (found_channel && found_channel._id != req.params.cid) {
-                    res.render("channel_edit", { title: "edit channel", err1: "请勿与其他频道名重复" });
-                }
-                else {
-                    Channel.findById(req.params.cid)
-                        .exec(function (err, found_channel2) {
-                            if (err) { return next(err); }
-                            found_channel2.update({
-                                "$set": {
-                                    channelname: req.body.channelname,
-                                    announce: req.body.announce
-                                }
-                            }, function (err) {
+
+        if (req.body.channelname && req.body.announce) {
+            Channel.findOne({ "channelname": req.body.channelname })
+                .exec(function (err, found_channel) {
+                    if (err) { return next(err) }
+                    // console.log(found_channel._id);
+                    // console.log(req.params.cid);
+                    if (found_channel && found_channel._id != req.params.cid) {
+                        res.render("channel_edit", { title: "edit channel", err1: "请勿与其他频道名重复" });
+                    }
+                    else {
+                        Channel.findById(req.params.cid)
+                            .exec(function (err, found_channel2) {
                                 if (err) { return next(err); }
+                                found_channel2.update({
+                                    "$set": {
+                                        channelname: req.body.channelname,
+                                        announce: req.body.announce
+                                    }
+                                }, function (err) {
+                                    if (err) { return next(err); }
+                                });
+                                res.render("channel_edit", { title: "edit channel", err1: "修改成功" });
                             });
-                            res.render("channel_edit", { title: "edit channel", err1: "修改成功" });
-                        });
-                }
-            });
+                    }
+                });
+        }
+        else if (req.body.channelname) {
+            Channel.findOne({ "channelname": "RSS-" + req.body.channelname })
+                .exec(function (err, found_channel) {
+                    if (err) { return next(err) }
+                    // console.log(found_channel._id);
+                    // console.log(req.params.cid);
+                    if (found_channel && found_channel._id != req.params.cid) {
+                        res.render("channel_edit", { title: "edit channel", err1: "请勿与其他频道名重复", announce: "false" });
+                    }
+                    else {
+                        Channel.findById(req.params.cid)
+                            .exec(function (err, found_channel2) {
+                                if (err) { return next(err); }
+                                found_channel2.update({
+                                    "$set": {
+                                        channelname: "RSS-" + req.body.channelname
+                                    }
+                                }, function (err) {
+                                    if (err) { return next(err); }
+                                });
+                                res.render("channel_edit", { title: "edit channel", err1: "修改成功", announce: "false" });
+                            });
+                    }
+                });
+        }
+        else {
+            Channel.findById(req.params.cid)
+                .exec(function (err, found_channel2) {
+                    if (err) { return next(err); }
+                    found_channel2.update({
+                        "$set": {
+                            announce: req.body.announce
+                        }
+                    }, function (err) {
+                        if (err) { return next(err); }
+                    });
+                    res.render("channel_edit", { title: "edit channel", err1: "修改成功", channelname: "false" });
+                });
+        }
     }
 ];
 

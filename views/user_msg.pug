@@ -2,9 +2,9 @@ extends layout
 
 block content
     if(user)
-        p username:#{user.username}
-        p password:#{user.password}
+        p 用户名:#{user.username}
+        p 密码:#{user.password}
         hr
-        a(href="/users/logout") logout
+        a(href="/users/logout") 退出登录
         hr
-        a(href="/users/changepassword") change password
+        a(href="/users/changepassword") 修改密码

@@ -41,19 +41,34 @@ html
                     a(href="/group/"+group._id+"/aggregation/setting") 聚合设置
                     p 频道:
                         each channel,index in group.channel
-                            a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
-                            |
-                            if channel.channelname!="Default"
+                            if cid == channel._id
+                                span #{channel.channelname}
+                                |
+                                if channel.channelname!="Default"
+                                    |(
+                                    a(href="/group/"+group._id+"/channel/"+channel._id+"/add") 加入)
                                 |(
-                                a(href="/group/"+group._id+"/channel/"+channel._id+"/add") 加入)
-                            |(
-                            a(href="/group/"+group._id+"/channel/"+channel._id+"/edit") 修改)
-                            |
-                            if channel.channelname!="Default"
+                                a(href="/group/"+group._id+"/channel/"+channel._id+"/edit") 修改)
+                                |
+                                if channel.channelname!="Default"
+                                    |(
+                                    a(href="/group/"+group._id+"/channel/"+channel._id+"/quit") 退出)
+                                    |(
+                                    a(href="/group/"+group._id+"/channel/"+channel._id+"/delete") 删除)
+                            else
+                                a(href="/group/"+group._id+"/channel/"+channel._id) #{channel.channelname}
+                                |
+                                if channel.channelname!="Default"
+                                    |(
+                                    a(href="/group/"+group._id+"/channel/"+channel._id+"/add") 加入)
                                 |(
-                                a(href="/group/"+group._id+"/channel/"+channel._id+"/quit") 退出)
-                                |(
-                                a(href="/group/"+group._id+"/channel/"+channel._id+"/delete") 删除)
+                                a(href="/group/"+group._id+"/channel/"+channel._id+"/edit") 修改)
+                                |
+                                if channel.channelname!="Default"
+                                    |(
+                                    a(href="/group/"+group._id+"/channel/"+channel._id+"/quit") 退出)
+                                    |(
+                                    a(href="/group/"+group._id+"/channel/"+channel._id+"/delete") 删除)
 
                             if index<group.channel.length
                                 |&nbsp;/&nbsp;

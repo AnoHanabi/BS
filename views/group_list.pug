@@ -3,16 +3,16 @@ extends layout
 block content
 
     each group in group_list
-        p   groupname:#{group.groupname}
-        a(href="/group/"+group._id+"/channel/"+group.channel[0]._id) join
+        p   群组名字:#{group.groupname}
+        a(href="/group/"+group._id+"/channel/"+group.channel[0]._id) 进入
         |&nbsp;/&nbsp;
-        a(href="/group/"+group._id+"/add/") add
+        a(href="/group/"+group._id+"/add/") 加入
         |&nbsp;/&nbsp;
-        a(href="/group/"+group._id+"/edit/") edit
+        a(href="/group/"+group._id+"/edit/") 修改
         |&nbsp;/&nbsp;
-        a(href="/group/"+group._id+"/quit/") quit
+        a(href="/group/"+group._id+"/quit/") 退出
         |&nbsp;/&nbsp;
-        a(href="/group/"+group._id+"/delete/") delete
+        a(href="/group/"+group._id+"/delete/") 删除
         hr
     else
-        li nothing
+        li 空空如也
